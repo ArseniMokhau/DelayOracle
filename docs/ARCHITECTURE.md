@@ -29,7 +29,7 @@ flowchart LR
 | Part | Technology |
 |---|---|
 | Backend | C#, ASP.NET Core (current .NET LTS), EF Core, SQLite, xUnit |
-| Worker | Python 3.12, FastAPI, pandas, scikit-learn, pytest |
+| Worker | Python 3.14, FastAPI, pandas, scikit-learn, pytest |
 | Frontend | React, TypeScript, Vite, TanStack Query |
 | Tooling | Docker Compose, GitHub Actions, GitHub Pages |
 | Data | ZTM Gdańsk open data (CC BY), Open-Meteo |
@@ -43,7 +43,7 @@ delayoracle/
 ├── .github/workflows/
 ├── docs/                 ARCHITECTURE.md, AI_USAGE.md, media/
 ├── backend/
-│   ├── DelayOracle.sln
+│   ├── DelayOracle.slnx
 │   ├── DelayOracle.Api/  Controllers/, Services/, Models/, Data/, Program.cs
 │   └── DelayOracle.Tests/
 ├── ai-worker/            collector.py, features.py, train.py, app.py, tests/, models/, data/sample/

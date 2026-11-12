@@ -19,7 +19,7 @@ DelayOracle tells a user when to leave home to catch public transport in Gdańsk
 
 | Part | Command |
 |---|---|
-| Backend build / test | `dotnet build backend/DelayOracle.sln` / `dotnet test backend/DelayOracle.sln` |
+| Backend build / test | `dotnet build backend/DelayOracle.slnx` / `dotnet test backend/DelayOracle.slnx` |
 | Backend run | `dotnet run --project backend/DelayOracle.Api --urls http://localhost:5000` |
 | Worker setup / test | `cd ai-worker && pip install -r requirements.txt` / `pytest` |
 | Worker lint | `ruff check .` |

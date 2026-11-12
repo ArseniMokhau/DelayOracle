@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="DelayOracle.Api/DelayOracle.Api.csproj" />
+  <Project Path="DelayOracle.Tests/DelayOracle.Tests.csproj" />
+</Solution>

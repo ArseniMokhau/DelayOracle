@@ -4,7 +4,7 @@ allowed-tools: Bash(dotnet build:*), Bash(dotnet test:*), Bash(pytest:*), Bash(r
 ---
 Run the full verification for this repository and report the results honestly.
 
-1. Backend: `dotnet build backend/DelayOracle.sln -warnaserror`, then `dotnet test backend/DelayOracle.sln --no-build`.
+1. Backend: `dotnet build backend/DelayOracle.slnx -warnaserror`, then `dotnet test backend/DelayOracle.slnx --no-build`.
 2. Worker (from `ai-worker/`): `ruff check .`, then `pytest`.
 3. Frontend (from `frontend/`): `npm run lint`, `npm test -- --run`, `npm run build`.
 
