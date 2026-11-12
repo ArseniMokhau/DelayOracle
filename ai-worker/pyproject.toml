@@ -1,0 +1,12 @@
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+# E/F: errors, I: import order, UP: modern syntax, B: likely bugs
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+# Lets tests import app.py from the ai-worker folder.
+pythonpath = ["."]
+testpaths = ["tests"]
