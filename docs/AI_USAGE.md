@@ -35,13 +35,10 @@ A record of how AI tools were used on this project. The README's "AI usage" sect
 - The full `Swashbuckle.AspNetCore` package conflicted with the built-in `Microsoft.AspNetCore.OpenApi`; only `Swashbuckle.AspNetCore.SwaggerUI` is used, on top of the built-in OpenAPI document.
 - The docs said `DelayOracle.sln` and Python 3.12; they now say `DelayOracle.slnx` (the .NET 10 default) and Python 3.14.
 
-**What was done by hand** …
-
 ## Template for later milestones
 
 ```
 ## Milestone N: title (month year)
 **What Claude did** …
 **What had to be corrected** …
-**What was done by hand** …
 ```
