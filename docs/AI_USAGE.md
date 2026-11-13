@@ -35,6 +35,20 @@ A record of how AI tools were used on this project. The README's "AI usage" sect
 - The full `Swashbuckle.AspNetCore` package conflicted with the built-in `Microsoft.AspNetCore.OpenApi`; only `Swashbuckle.AspNetCore.SwaggerUI` is used, on top of the built-in OpenAPI document.
 - The docs said `DelayOracle.sln` and Python 3.12; they now say `DelayOracle.slnx` (the .NET 10 default) and Python 3.14.
 
+## Milestone 2: commutes API (November 2026)
+
+The developer wrote the implementation. Claude assisted with testing and with implementation suggestions.
+
+**What Claude did**
+
+- Testing: wrote the in-memory SQLite test factory (`ApiFactory`) and the commutes endpoint tests for every status code in the API table.
+- Implementation suggestions: proposed the order of the steps and the approach for each one (entity, `AppDbContext`, DTOs with validation, service, controller).
+- Setup: EF Core packages, the local `dotnet-ef` tool, and applying migrations on startup.
+
+**What had to be corrected**
+
+- Claude's first suggestion for `CommuteService` was not detailed enough and had to be expanded.
+
 ## Template for later milestones
 
 ```
