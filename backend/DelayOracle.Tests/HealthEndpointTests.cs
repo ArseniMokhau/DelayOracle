@@ -1,16 +1,15 @@
 using System.Net;
 using System.Net.Http.Json;
 using DelayOracle.Api.Models;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace DelayOracle.Tests;
 
-// WebApplicationFactory starts the real API in memory, so the test goes through HTTP.
-public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
+// ApiFactory starts the real API in memory, so the test goes through HTTP.
+public class HealthEndpointTests : IClassFixture<ApiFactory>
 {
     private readonly HttpClient _client;
 
-    public HealthEndpointTests(WebApplicationFactory<Program> factory)
+    public HealthEndpointTests(ApiFactory factory)
     {
         _client = factory.CreateClient();
     }
