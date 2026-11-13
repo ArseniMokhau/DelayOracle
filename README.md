@@ -2,7 +2,7 @@
 
 DelayOracle tells you when to leave home to catch public transport in Gdańsk. It combines live ZTM Gdańsk departures, a delay prediction from a trained model, and your walking time to the stop.
 
-**Status:** project skeleton. Each part starts and answers a health check; the features come in later milestones (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
+**Status:** the API can store commutes (create, list, read, replace, delete). Live departures, the advice rule, predictions and the real UI come in later milestones (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
 
 ## Parts
 
@@ -20,6 +20,20 @@ Requirements: .NET 10 SDK, Python 3.14, Node.js 24. Commands are for PowerShell,
 
 ```powershell
 dotnet run --project backend/DelayOracle.Api --urls http://localhost:5000
+```
+
+The API creates its SQLite database (`backend/DelayOracle.Api/app.db`) on first start. Example:
+
+```powershell
+Invoke-RestMethod http://localhost:5000/api/commutes -Method Post -ContentType "application/json" `
+  -Body '{"name":"Home to work","stopId":1234,"routeShortName":"8","walkMinutes":5}'
+Invoke-RestMethod http://localhost:5000/api/commutes
+```
+
+After changing an entity, generate a migration (run `dotnet tool restore` once first):
+
+```powershell
+dotnet ef migrations add <Name> --project backend/DelayOracle.Api --output-dir Data/Migrations
 ```
 
 **Worker** (http://localhost:8000)
