@@ -49,6 +49,19 @@ The developer wrote the implementation. Claude assisted with testing and with im
 
 - Claude's first suggestion for `CommuteService` was not detailed enough and had to be expanded.
 
+## Milestone 3: advice rule (November 2026)
+
+The developer wrote the implementation. Claude assisted with testing and with implementation suggestions.
+
+**What Claude did**
+
+- Testing: wrote the `AdviceCalculator` unit tests for the five examples in the architecture document, plus unsorted input, partial minutes and a `leaveBy` just in the past.
+- Implementation suggestions: proposed the method signature (the current time passed in as a parameter, `null` for no departure) and the steps of the rule.
+
+**What had to be corrected**
+
+- Claude's first set of tests missed a case: a `leaveBy` less than a minute in the past rounds to zero minutes and could be reported as "leave now". A test for it was added.
+
 ## Template for later milestones
 
 ```
