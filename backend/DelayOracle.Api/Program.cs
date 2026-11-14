@@ -18,6 +18,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder
 
 builder.Services.AddScoped<CommuteService>();
 builder.Services.AddScoped<StopService>();
+builder.Services.AddScoped<DepartureService>();
 
 builder.Services.Configure<ZtmOptions>(builder.Configuration.GetSection("Ztm"));
 builder.Services.AddHttpClient<ZtmClient>((services, client) =>
