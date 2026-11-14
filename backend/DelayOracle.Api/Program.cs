@@ -1,3 +1,4 @@
+using DelayOracle.Api.Controllers;
 using DelayOracle.Api.Data;
 using DelayOracle.Api.Services;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<ZtmUnavailableExceptionHandler>();
+builder.Services.AddMemoryCache();
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddScoped<CommuteService>();
+builder.Services.AddScoped<StopService>();
 
 builder.Services.Configure<ZtmOptions>(builder.Configuration.GetSection("Ztm"));
 builder.Services.AddHttpClient<ZtmClient>((services, client) =>
