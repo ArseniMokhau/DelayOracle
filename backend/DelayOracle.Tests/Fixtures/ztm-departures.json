@@ -1,0 +1,56 @@
+{
+  "lastUpdate": "2026-11-14T17:21:38Z",
+  "departures": [
+    {
+      "id": "T22R154",
+      "delayInSeconds": 205,
+      "estimatedTime": "2026-11-14T17:24:25Z",
+      "headsign": "Jana z Kolna",
+      "routeId": 154,
+      "routeShortName": "154",
+      "scheduledTripStartTime": "2026-11-14T17:06:00Z",
+      "tripId": 22,
+      "status": "REALTIME",
+      "theoreticalTime": "2026-11-14T17:21:00Z",
+      "timestamp": "2026-11-14T17:21:34Z",
+      "trip": 30353510,
+      "vehicleCode": 2677,
+      "vehicleId": 145730,
+      "vehicleService": "154-01"
+    },
+    {
+      "id": "T52R186",
+      "delayInSeconds": 206,
+      "estimatedTime": "2026-11-14T17:24:26Z",
+      "headsign": "Plac Solidarności",
+      "routeId": 186,
+      "routeShortName": "186",
+      "scheduledTripStartTime": "2026-11-14T16:42:00Z",
+      "tripId": 52,
+      "status": "REALTIME",
+      "theoreticalTime": "2026-11-14T17:21:00Z",
+      "timestamp": "2026-11-14T17:21:37Z",
+      "trip": 30359093,
+      "vehicleCode": 2669,
+      "vehicleId": 145722,
+      "vehicleService": "186-06"
+    },
+    {
+      "id": "T102R208",
+      "delayInSeconds": null,
+      "estimatedTime": "2026-11-14T17:40:00Z",
+      "headsign": "Muzeum II Wojny",
+      "routeId": 208,
+      "routeShortName": "208",
+      "scheduledTripStartTime": "2026-11-14T17:19:00Z",
+      "tripId": 102,
+      "status": "SCHEDULED",
+      "theoreticalTime": "2026-11-14T17:40:00Z",
+      "timestamp": "2026-11-14T17:21:38Z",
+      "trip": 30362019,
+      "vehicleCode": null,
+      "vehicleId": null,
+      "vehicleService": "208-01"
+    }
+  ]
+}

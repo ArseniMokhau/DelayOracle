@@ -1,6 +1,7 @@
 using DelayOracle.Api.Data;
 using DelayOracle.Api.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 const string CorsPolicy = "Frontend";
 
@@ -13,6 +14,13 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddScoped<CommuteService>();
+
+builder.Services.Configure<ZtmOptions>(builder.Configuration.GetSection("Ztm"));
+builder.Services.AddHttpClient<ZtmClient>((services, client) =>
+{
+    var options = services.GetRequiredService<IOptions<ZtmOptions>>().Value;
+    client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+});
 
 // The browser only lets the frontend call this API if its origin is on this list.
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
