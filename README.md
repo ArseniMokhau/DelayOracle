@@ -86,6 +86,31 @@ Invoke-RestMethod http://localhost:8000/health
 
 The same checks run in GitHub Actions on every pull request (`.github/workflows/ci.yml`).
 
+## Prediction model
+
+The model predicts how much a vehicle's delay will change between now and its departure. It is a small PyTorch network trained by `ai-worker/train.py` on real departures collected from ZTM Gdańsk. The numbers below are from `ai-worker/models/model_card.json`, which `train.py` writes.
+
+| | |
+|---|---|
+| Data | 28,110 departures at 250 stops, Friday 13 November 2026 09:30 to Saturday 14 November 2026 14:25 (local time) |
+| Split by time | first 80% trains (22,488 rows), last 20% tests (5,622 rows, Saturday 08:42 to 14:25) |
+| Baseline | "the final delay equals the current delay", which is what ZTM shows |
+| Mean absolute error on the test rows | model 119.0 s, baseline 159.2 s |
+
+To reproduce: `cd ai-worker`, then `python train.py` (about 10 seconds, no network needed).
+
+### Limitations
+
+- **Two days of data.** The model has seen one Friday and part of one Saturday. It knows nothing about other weekdays, rush hours on a normal working week, holidays or other seasons, and it was tested on a single Saturday morning. The result above describes those hours, not the system in general.
+- **Close departures are not predicted better than ZTM.** For departures less than 10 minutes away (122 test rows) the model's error is 97.4 s and the baseline's is 90.7 s. The cause is the short collection: the collector stored only the first and the last sighting of each departure, and the first sighting is usually about 28 minutes ahead, so the model saw few close departures.
+- **Weather barely varied.** Temperatures stayed between 4.3 and 7.9 °C with 0.6 mm of rain in total, and one weather reading is used for the whole city, so the weather features have had little to learn from.
+- **One model type.** The network was not compared with other kinds of model, only with the baseline.
+
+### Planned improvements
+
+- Collect again over several weeks. The collector now stores every sighting of a departure (`sightings` table), so the delay can be followed down to the last minutes.
+- Retrain on the longer dataset with examples at every distance from the departure, and check the close departures again.
+
 ## Attribution
 
 - Real-time data: ZTM Gdańsk open data portal (CC BY).
