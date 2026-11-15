@@ -1,6 +1,6 @@
 # AI usage log
 
-A record of how AI tools were used on this project. The README's "AI usage" section summarises this file.
+A record of how AI tools were used on this project. Section 4 of the README (`README.md` in Polish, `README.en.md` in English) summarises this file.
 
 ## Tools
 

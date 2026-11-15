@@ -2,7 +2,7 @@
 
 # Claude Code instructions
 
-Code, comments, commits and documentation are in English.
+Code, comments, commits and documentation are in English. The README is the one exception: `README.md` is in Polish and `README.en.md` is the same content in English. Change both together.
 
 ## Working agreement
 
