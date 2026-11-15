@@ -14,22 +14,20 @@ def features_by_name(**overrides) -> dict[str, float]:
         "current_delay_s": 120,
         "scheduled_time": utc(13, 8, 30),
         "observed_at": utc(13, 8, 4),
-        "precip_mm": 0.4,
-        "temp_c": 6.5,
     } | overrides
     return dict(zip(FEATURE_NAMES, build_features(**arguments), strict=True))
 
 
+def test_features_are_delay_minutes_and_hour():
+    assert FEATURE_NAMES == ["current_delay_s", "minutes_to_departure", "hour"]
+
+
 def test_returns_one_number_per_feature_name():
-    assert len(build_features(0, utc(13, 8, 30), utc(13, 8, 0), 0.0, 5.0)) == len(FEATURE_NAMES)
+    assert len(build_features(0, utc(13, 8, 30), utc(13, 8, 0))) == len(FEATURE_NAMES)
 
 
-def test_delay_and_weather_are_passed_through():
-    features = features_by_name()
-
-    assert features["current_delay_s"] == 120
-    assert features["precip_mm"] == 0.4
-    assert features["temp_c"] == 6.5
+def test_current_delay_is_passed_through():
+    assert features_by_name(current_delay_s=120)["current_delay_s"] == 120
 
 
 def test_minutes_to_departure_is_scheduled_time_minus_observation_time():
@@ -40,17 +38,10 @@ def test_minutes_to_departure_is_scheduled_time_minus_observation_time():
 
 def test_hour_is_local_time_in_gdansk():
     # In November Gdańsk is one hour ahead of UTC.
-    features = features_by_name(scheduled_time=utc(13, 8, 30))
-
-    assert features["hour"] == 9
-
-
-def test_weekday_is_local_and_monday_is_zero():
-    # 13 November 2026 is a Friday (4). 23:30 UTC is already Saturday (5) in Gdańsk.
-    assert features_by_name(scheduled_time=utc(13, 8, 30))["weekday"] == 4
-    assert features_by_name(scheduled_time=utc(13, 23, 30))["weekday"] == 5
+    assert features_by_name(scheduled_time=utc(13, 8, 30))["hour"] == 9
+    assert features_by_name(scheduled_time=utc(13, 23, 30))["hour"] == 0
 
 
 def test_time_without_a_time_zone_is_rejected():
     with pytest.raises(ValueError):
-        build_features(0, datetime(2026, 11, 13, 8, 30), utc(13, 8, 0), 0.0, 5.0)
+        build_features(0, datetime(2026, 11, 13, 8, 30), utc(13, 8, 0))

@@ -11,12 +11,9 @@ FEATURE_NAMES = [
     "current_delay_s",
     "minutes_to_departure",
     "hour",
-    "weekday",
-    "precip_mm",
-    "temp_c",
 ]
 
-# People travel by local time, so the hour and weekday are taken in Gdańsk's time zone.
+# People travel by local time, so the hour is taken in local time
 LOCAL_ZONE = ZoneInfo("Europe/Warsaw")
 
 
@@ -24,8 +21,6 @@ def build_features(
     current_delay_s: float,
     scheduled_time: datetime,
     observed_at: datetime,
-    precip_mm: float,
-    temp_c: float,
 ) -> list[float]:
     """One row of features for a departure seen at `observed_at`.
 
@@ -40,7 +35,4 @@ def build_features(
         float(current_delay_s),
         minutes_to_departure,
         float(local_time.hour),
-        float(local_time.weekday()),  # Monday is 0
-        float(precip_mm),
-        float(temp_c),
     ]

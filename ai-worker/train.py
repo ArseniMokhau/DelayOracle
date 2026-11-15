@@ -3,10 +3,9 @@
 Usage:
   python train.py
 
-Reads data/sample/delays.db and data/sample/weather.csv.
+Reads data/sample/delays.db.
 Writes models/model.pt and models/model_card.json.
 """
-import csv
 import json
 import sqlite3
 from datetime import UTC, datetime
@@ -19,7 +18,6 @@ from features import FEATURE_NAMES, build_features
 from model import DelayModel, save_model
 
 DB_PATH = "data/sample/delays.db"
-WEATHER_PATH = "data/sample/weather.csv"
 
 MODEL_PATH = "models/model.pt"
 MODEL_CARD_PATH = "models/model_card.json"
@@ -49,18 +47,8 @@ def parse_utc(text: str) -> datetime:
     return datetime.fromisoformat(text).astimezone(UTC)
 
 
-def load_weather(path: str) -> dict[str, tuple[float, float]]:
-    """Maps an hour such as '2026-11-13T08' to (precip_mm, temp_c)."""
-    with open(path, encoding="utf-8") as file:
-        return {
-            row["time_utc"][:13]: (float(row["precip_mm"]), float(row["temp_c"]))
-            for row in csv.DictReader(file)
-        }
-
-
-def load_dataset(db_path: str, weather_path: str):
+def load_dataset(db_path: str):
     """Returns features, current delays and final delays as tensors, oldest sighting first."""
-    weather = load_weather(weather_path)
     con = sqlite3.connect(db_path)
     try:
         rows = con.execute(USABLE_ROWS_SQL).fetchall()
@@ -69,9 +57,8 @@ def load_dataset(db_path: str, weather_path: str):
 
     features, current_delays, final_delays, seen_at = [], [], [], []
     for theoretical, first_seen_at, first_delay_s, last_delay_s in rows:
-        precip_mm, temp_c = weather[first_seen_at[:13]]
         features.append(build_features(
-            first_delay_s, parse_utc(theoretical), parse_utc(first_seen_at), precip_mm, temp_c
+            first_delay_s, parse_utc(theoretical), parse_utc(first_seen_at)
         ))
         current_delays.append(float(first_delay_s))
         final_delays.append(float(last_delay_s))
@@ -115,7 +102,7 @@ def write_model_card(path: str, card: dict) -> None:
 def main() -> None:
     torch.manual_seed(SEED)
 
-    features, current_delays, final_delays, seen_at = load_dataset(DB_PATH, WEATHER_PATH)
+    features, current_delays, final_delays, seen_at = load_dataset(DB_PATH)
 
     # Split by time: the model is tested on departures seen after everything it trained on.
     split = int(len(features) * TRAIN_SHARE)

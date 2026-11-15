@@ -3,10 +3,7 @@
   "features": [
     "current_delay_s",
     "minutes_to_departure",
-    "hour",
-    "weekday",
-    "precip_mm",
-    "temp_c"
+    "hour"
   ],
   "target": "change of the delay between the sighting and the departure, in seconds",
   "baseline": "final delay equals current delay",
@@ -23,13 +20,13 @@
     "test": 5622
   },
   "mae_seconds": {
-    "model": 119.0,
+    "model": 113.0,
     "baseline": 159.2
   },
   "mae_seconds_close_to_departure": {
     "under_minutes": 10,
     "rows": 122,
-    "model": 97.4,
+    "model": 77.3,
     "baseline": 90.7
   },
   "seed": 42,
@@ -37,5 +34,5 @@
   "versions": {
     "torch": "2.15.0+cpu"
   },
-  "trained_at_utc": "2026-11-15T02:07:26Z"
+  "trained_at_utc": "2026-11-15T02:27:05Z"
 }
