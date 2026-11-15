@@ -2,6 +2,10 @@
 
 **Język:** Polski · [English](README.en.md)
 
+[![Nagranie działania aplikacji: kliknij, aby odtworzyć](docs/walkthrough.jpg)](docs/walkthrough.mp4)
+
+**Demo:** [nagranie działania aplikacji](docs/walkthrough.mp4) (63 s, mp4). Kliknij obrazek lub link, aby je odtworzyć.
+
 DelayOracle podpowiada, kiedy wyjść z domu, żeby zdążyć na komunikację miejską w Gdańsku. Łączy odjazdy na żywo z ZTM Gdańsk, prognozę opóźnienia z wytrenowanego modelu oraz czas dojścia na przystanek.
 
 **Stan projektu:** aplikacja jest ukończona i działa lokalnie. Nie jest nigdzie hostowana: wdrożenie zostało odłożone, ponieważ projekt nie ma na razie zasobów na hosting.

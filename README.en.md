@@ -2,6 +2,10 @@
 
 **Language:** [Polski](README.md) · English
 
+[![Walkthrough recording of the app: click to play](docs/walkthrough.jpg)](docs/walkthrough.mp4)
+
+**Demo:** [a walkthrough recording of the app](docs/walkthrough.mp4) (63 s, mp4). Click the picture or the link to play it.
+
 DelayOracle tells you when to leave home to catch public transport in Gdańsk. It combines live ZTM Gdańsk departures, a delay prediction from a trained model, and your walking time to the stop.
 
 **Status:** the application is complete and runs locally. It is not hosted anywhere: deployment is postponed, because the project has no hosting resources for now.
