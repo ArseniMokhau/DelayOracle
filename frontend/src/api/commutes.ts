@@ -21,3 +21,8 @@ export function createCommute(input: CommuteInput): Promise<Commute> {
 export function updateCommute(id: string, input: CommuteInput): Promise<Commute> {
   return apiSend<Commute>('PUT', `/api/commutes/${id}`, input)
 }
+
+// Deletes a commute for everyone who has its id.
+export function deleteCommute(id: string): Promise<void> {
+  return apiSend<void>('DELETE', `/api/commutes/${id}`)
+}

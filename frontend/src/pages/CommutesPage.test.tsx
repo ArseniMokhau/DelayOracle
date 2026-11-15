@@ -233,3 +233,124 @@ test('the list has a "New commute" button, and Cancel in the form returns to the
   await findTile('Morning to work')
   expect(screen.queryByRole('heading', { name: 'New commute' })).toBeNull()
 })
+
+// The requests that changed something (POST, PUT, DELETE), as [address, method] pairs.
+function changes(fetchMock: ReturnType<typeof stubApi>) {
+  return fetchMock.mock.calls
+    .filter((call) => call[1]?.method !== undefined)
+    .map((call) => [call[0], call[1]?.method])
+}
+
+test('the edit button opens the form with the commute, and saving shows the new values', async () => {
+  saveCommuteIds([WORK_ID])
+  const fetchMock = stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Morning to work')
+
+  await userEvent.click(screen.getByRole('button', { name: 'Edit Morning to work' }))
+  expect(screen.getByRole('heading', { name: 'Edit commute' })).toBeTruthy()
+  const name = screen.getByLabelText('Name') as HTMLInputElement
+  expect(name.value).toBe('Morning to work')
+
+  // From here on the server knows the commute under its new name.
+  const renamed = { ...WORK_COMMUTE, name: 'Evening shift' }
+  fetchMock.mockImplementation(async (url: string) => {
+    if (url.includes('/advice')) return jsonResponse(NO_DEPARTURE)
+    return url.includes('?') ? jsonResponse([renamed]) : jsonResponse(renamed)
+  })
+  await userEvent.clear(name)
+  await userEvent.type(name, 'Evening shift')
+  await userEvent.click(screen.getByRole('button', { name: 'Save commute' }))
+
+  await findTile('Evening shift')
+  expect(screen.queryByRole('heading', { name: 'Edit commute' })).toBeNull()
+  expect(changes(fetchMock)).toEqual([[expect.stringMatching(new RegExp(`/api/commutes/${WORK_ID}$`)), 'PUT']])
+})
+
+test('the delete button asks first, and "Keep it" changes nothing', async () => {
+  saveCommuteIds([GYM_ID])
+  const fetchMock = stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([GYM_COMMUTE]),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Gym')
+
+  await userEvent.click(screen.getByRole('button', { name: 'Delete Gym' }))
+  expect(screen.getByRole('alertdialog', { name: 'Delete “Gym”?' })).toBeTruthy()
+  await userEvent.click(screen.getByRole('button', { name: 'Keep it' }))
+
+  expect(screen.queryByRole('alertdialog')).toBeNull()
+  expect(changes(fetchMock)).toEqual([])
+  expect(loadCommuteIds()).toEqual([GYM_ID])
+})
+
+test('confirming the delete removes the commute on the server and from this browser', async () => {
+  saveCommuteIds([WORK_ID, GYM_ID])
+  const fetchMock = stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE, GYM_COMMUTE]),
+    [`/api/commutes/${GYM_ID}`]: jsonResponse(null, 204),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Gym')
+
+  await userEvent.click(screen.getByRole('button', { name: 'Delete Gym' }))
+  await userEvent.click(screen.getByRole('button', { name: 'Delete commute' }))
+
+  await waitFor(() => expect(loadCommuteIds()).toEqual([WORK_ID]))
+  expect(screen.queryByRole('alertdialog')).toBeNull()
+  expect(changes(fetchMock)).toEqual([[expect.stringMatching(new RegExp(`/api/commutes/${GYM_ID}$`)), 'DELETE']])
+})
+
+test('a commute that is already gone on the server is forgotten all the same', async () => {
+  saveCommuteIds([GYM_ID])
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([GYM_COMMUTE]),
+    [`/api/commutes/${GYM_ID}`]: jsonResponse(null, 404),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Gym')
+
+  await userEvent.click(screen.getByRole('button', { name: 'Delete Gym' }))
+  await userEvent.click(screen.getByRole('button', { name: 'Delete commute' }))
+
+  await waitFor(() => expect(loadCommuteIds()).toEqual([]))
+  expect(await screen.findByText('No commutes yet')).toBeTruthy()
+})
+
+test('when the delete fails, the dialog says so and the commute stays', async () => {
+  saveCommuteIds([GYM_ID])
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([GYM_COMMUTE]),
+    [`/api/commutes/${GYM_ID}`]: jsonResponse(null, 500),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Gym')
+
+  await userEvent.click(screen.getByRole('button', { name: 'Delete Gym' }))
+  await userEvent.click(screen.getByRole('button', { name: 'Delete commute' }))
+
+  const alert = await screen.findByRole('alert')
+  expect(alert.textContent).toBe('The commute could not be deleted. Try again in a moment.')
+  expect(screen.getByRole('alertdialog')).toBeTruthy()
+  expect(loadCommuteIds()).toEqual([GYM_ID])
+})
+
+test('the list offers to copy a share link', async () => {
+  saveCommuteIds([WORK_ID])
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  await findTile('Morning to work')
+  expect(screen.getByRole('button', { name: 'Copy link' })).toBeTruthy()
+})

@@ -3,6 +3,7 @@ import { fetchAdvice } from '../api/commutes'
 import type { Advice, Commute } from '../api/types'
 import { adviceHeadline, describeDelay, formatTime, sourceLabel } from '../lib/format'
 import CountdownRing from './CountdownRing'
+import { EditIcon, TrashIcon } from './icons'
 
 // The advice depends on live departures, so it is asked for again this often.
 const REFRESH_MS = 30_000
@@ -11,6 +12,8 @@ interface CommuteTileProps {
   commute: Commute
   // The featured tile is the large one with the countdown ring.
   featured: boolean
+  onEdit: () => void
+  onDelete: () => void
 }
 
 // Picks the colour group of the tile from what the advice says.
@@ -28,7 +31,7 @@ function tileTone(advice: Advice | undefined, failed: boolean): string {
 }
 
 // One saved commute with its live answer: when to leave, and for which departure.
-function CommuteTile({ commute, featured }: CommuteTileProps) {
+function CommuteTile({ commute, featured, onEdit, onDelete }: CommuteTileProps) {
   const advice = useQuery({
     queryKey: ['advice', commute.id],
     queryFn: () => fetchAdvice(commute.id),
@@ -45,8 +48,18 @@ function CommuteTile({ commute, featured }: CommuteTileProps) {
       {featured && typeof leaveInMinutes === 'number' && <CountdownRing minutes={leaveInMinutes} />}
 
       <div className="commute-body">
-        <p className="commute-kicker">{`${commute.name} · ${line} · ${commute.walkMinutes} min walk`}</p>
-
+        <div className="commute-top">
+          <p className="commute-kicker">{`${commute.name} · ${line} · ${commute.walkMinutes} min walk`}</p>
+          <div className="commute-actions">
+            {/* The buttons show only an icon, so the label is what a screen reader says. */}
+            <button type="button" className="icon-button" aria-label={`Edit ${commute.name}`} onClick={onEdit}>
+              <EditIcon />
+            </button>
+            <button type="button" className="icon-button" aria-label={`Delete ${commute.name}`} onClick={onDelete}>
+              <TrashIcon />
+            </button>
+          </div>
+        </div>
         {advice.isPending && (
           <p className="commute-headline" role="status">
             Checking the trams…
