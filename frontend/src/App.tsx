@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchHealth } from './api/health'
 
+// Placeholder screen until the real UI is built: it shows whether the API can be reached.
 type ApiState = 'loading' | 'up' | 'down'
 
 const MESSAGES: Record<ApiState, string> = {
@@ -12,6 +13,7 @@ const MESSAGES: Record<ApiState, string> = {
 function App() {
   const [apiState, setApiState] = useState<ApiState>('loading')
 
+  // Runs once after the first render.
   useEffect(() => {
     fetchHealth()
       .then(() => setApiState('up'))

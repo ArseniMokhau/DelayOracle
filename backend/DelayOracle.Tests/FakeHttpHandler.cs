@@ -17,10 +17,15 @@ public class FakeHttpHandler : HttpMessageHandler
 
     public static FakeHttpHandler Returning(string body, HttpStatusCode status = HttpStatusCode.OK)
     {
-        return new FakeHttpHandler(_ => new HttpResponseMessage(status)
+        return new FakeHttpHandler(_ => JsonResponse(body, status));
+    }
+
+    public static HttpResponseMessage JsonResponse(string body, HttpStatusCode status = HttpStatusCode.OK)
+    {
+        return new HttpResponseMessage(status)
         {
             Content = new StringContent(body, Encoding.UTF8, "application/json"),
-        });
+        };
     }
 
     public static FakeHttpHandler Throwing(Exception exception)

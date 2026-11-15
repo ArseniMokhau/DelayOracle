@@ -3,6 +3,8 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace DelayOracle.Api.Services;
 
+// Searches stops by name. The full stop list is large and changes rarely,
+// so it is downloaded from ZTM once and kept in memory.
 public class StopService
 {
     private const int MaxResults = 20;
@@ -26,6 +28,7 @@ public class StopService
         return querriedStops;
     }
 
+    // The cleaned stop list, from the cache when it is there.
     private async Task<List<StopResponse>> GetStopsAsync(CancellationToken cancellationToken)
     {
         if (_cache.TryGetValue(CacheKey, out List<StopResponse>? cached) && cached != null)
@@ -35,6 +38,7 @@ public class StopService
         else
         {
             var stopsList = await _ztm.GetStopsAsync(cancellationToken);
+            // The file repeats every stop once per day and contains stops without a name.
             var cleanedStopsList = stopsList.Where(stop => stop.StopName != null)
                                             .DistinctBy(stop => stop.StopId)
                                             .Select(stop => new StopResponse(Name: stop.StopName!, Id: stop.StopId, Code: stop.StopCode, Zone: stop.ZoneName))

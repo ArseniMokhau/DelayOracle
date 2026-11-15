@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DelayOracle.Api.Controllers;
 
+// HTTP endpoints for saved commutes. The controller only translates between HTTP and
+// the services: it holds no logic and returns response records, never the entity.
 [ApiController]
 [Route("api/commutes")]
 public class CommutesController : ControllerBase
@@ -26,6 +28,7 @@ public class CommutesController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CommuteResponse>> GetById(int id, CancellationToken cancellationToken)
     {
+        // The service returns null for an unknown id, which becomes a 404.
         var commuteResponse = await _commuteService.GetByIdAsync(id, cancellationToken);
         return commuteResponse is null ? NotFound() : Ok(commuteResponse);
     }
@@ -34,6 +37,7 @@ public class CommutesController : ControllerBase
     public async Task<ActionResult<CommuteResponse>> Create(CommuteRequest commuteRequest, CancellationToken cancellationToken)
     {
         var created = await _commuteService.CreateAsync(commuteRequest, cancellationToken);
+        // 201 with a Location header that points at the new commute.
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -51,6 +55,7 @@ public class CommutesController : ControllerBase
         return deletionResult ? NoContent() : NotFound();
     }
 
+    // When to leave home for this commute, from the live departures of its stop.
     [HttpGet("{id:int}/advice")]
     public async Task<ActionResult<AdviceResponse>> GetAdvice(int id, CancellationToken cancellationToken)
     {

@@ -1,3 +1,4 @@
+# Runs the same checks as /verify for each of the three parts, on every pull request.
 name: CI
 
 on:

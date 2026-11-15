@@ -4,6 +4,8 @@ using Microsoft.Extensions.Options;
 
 namespace DelayOracle.Api.Services;
 
+// Calls the ZTM Gdańsk open data API. Every way a call can fail becomes a
+// ZtmUnavailableException, which the API answers with a 503.
 public class ZtmClient
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
@@ -21,6 +23,7 @@ public class ZtmClient
     {
         var json = await GetStringAsync($"{_options.DeparturesUrl}?stopId={stopId}", cancellationToken);
         
+        // ZTM answers 200 with an empty body for a stop id it does not know.
         return json == "" ? [] : Parse<ZtmDeparturesResponse>(json).Departures;
     }
 
@@ -28,6 +31,7 @@ public class ZtmClient
     {
         var json = await GetStringAsync($"{_options.StopsUrl}", cancellationToken);
 
+        // The file is an object keyed by date; the stops of all days are joined into one list.
         return [.. Parse<Dictionary<string, ZtmStopsDay>>(json).Values.SelectMany(day => day.Stops)];
     }
 
@@ -41,6 +45,8 @@ public class ZtmClient
         {
             throw new ZtmUnavailableException("The request to ZTM failed.", exception);
         }
+        // HttpClient reports its own timeout as a cancellation. If the caller cancelled
+        // (the user closed the page), the exception is not a timeout and is passed on.
         catch (OperationCanceledException exception) when (!cancellationToken.IsCancellationRequested)
         {
             throw new ZtmUnavailableException("The request to ZTM timed out.", exception);  

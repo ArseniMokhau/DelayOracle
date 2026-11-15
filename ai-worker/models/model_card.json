@@ -1,0 +1,38 @@
+{
+  "model": "PyTorch network, two hidden layers of 32",
+  "features": [
+    "current_delay_s",
+    "minutes_to_departure",
+    "hour"
+  ],
+  "target": "change of the delay between the sighting and the departure, in seconds",
+  "baseline": "final delay equals current delay",
+  "train_window_utc": {
+    "from": "2026-11-13T08:30:21Z",
+    "to": "2026-11-14T07:42:42Z"
+  },
+  "test_window_utc": {
+    "from": "2026-11-14T07:42:43Z",
+    "to": "2026-11-14T13:24:45Z"
+  },
+  "rows": {
+    "train": 22488,
+    "test": 5622
+  },
+  "mae_seconds": {
+    "model": 113.0,
+    "baseline": 159.2
+  },
+  "mae_seconds_close_to_departure": {
+    "under_minutes": 10,
+    "rows": 122,
+    "model": 77.3,
+    "baseline": 90.7
+  },
+  "seed": 42,
+  "epochs": 30,
+  "versions": {
+    "torch": "2.15.0+cpu"
+  },
+  "trained_at_utc": "2026-11-15T02:27:05Z"
+}

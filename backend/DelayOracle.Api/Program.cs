@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ZtmUnavailableExceptionHandler>();
+builder.Services.AddExceptionHandler<WorkerUnavailableExceptionHandler>();
 builder.Services.AddMemoryCache();
 builder.Services.AddOpenApi();
 // The clock is a service, so tests can replace it with a fixed time.
@@ -18,15 +19,24 @@ builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
+// One instance of each service per HTTP request.
 builder.Services.AddScoped<CommuteService>();
 builder.Services.AddScoped<StopService>();
 builder.Services.AddScoped<DepartureService>();
 builder.Services.AddScoped<AdviceService>();
 
+// Typed HttpClients: settings come from appsettings.json, and each client gets its own timeout.
 builder.Services.Configure<ZtmOptions>(builder.Configuration.GetSection("Ztm"));
 builder.Services.AddHttpClient<ZtmClient>((services, client) =>
 {
     var options = services.GetRequiredService<IOptions<ZtmOptions>>().Value;
+    client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+});
+
+builder.Services.Configure<WorkerOptions>(builder.Configuration.GetSection("Worker"));
+builder.Services.AddHttpClient<WorkerClient>((services, client) =>
+{
+    var options = services.GetRequiredService<IOptions<WorkerOptions>>().Value;
     client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
 });
 

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace DelayOracle.Tests;
 
+// The parts of stop search that are easier to check without HTTP: the limit and the cache.
 public class StopServiceTests
 {
     [Fact]

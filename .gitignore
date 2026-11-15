@@ -16,11 +16,13 @@ node_modules/
 dist/
 *.tsbuildinfo
 
-# Local data and secrets (a small sample dataset is committed under ai-worker/data/sample/)
+# Local data and secrets
 .env
 .env.local
 delays.db*
 app.db*
+# The collected training dataset is committed, so train.py can be re-run by anyone.
+!ai-worker/data/sample/delays.db
 
 # OS and editors
 .DS_Store

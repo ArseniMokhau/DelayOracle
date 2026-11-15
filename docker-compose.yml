@@ -6,6 +6,8 @@ services:
     environment:
       # Development mode turns on Swagger UI at http://localhost:5000/swagger
       ASPNETCORE_ENVIRONMENT: Development
+      # Inside Compose the worker is reached by its service name, not localhost.
+      Worker__BaseUrl: http://worker:8000
 
   worker:
     build: ./ai-worker

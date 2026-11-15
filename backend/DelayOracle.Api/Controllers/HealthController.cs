@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DelayOracle.Api.Controllers;
 
+// Liveness check: answers as soon as the API process is running.
 [ApiController]
 [Route("api/health")]
 public class HealthController : ControllerBase
