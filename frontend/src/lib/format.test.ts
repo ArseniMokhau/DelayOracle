@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
-import { describeDelay, formatTime, sourceLabel } from './format'
+import { LEAVE_IN_SIX, NO_DEPARTURE } from '../test/fixtures'
+import { adviceHeadline, describeDelay, formatTime, sourceLabel } from './format'
 
 test('formatTime shows a UTC time as Gdańsk clock time in winter', () => {
   // In November Gdańsk is one hour ahead of UTC.
@@ -39,4 +40,16 @@ test('sourceLabel names where a prediction came from', () => {
   expect(sourceLabel('model')).toBe('Model')
   expect(sourceLabel('fallback')).toBe('ZTM live')
   expect(sourceLabel('schedule')).toBe('Timetable')
+})
+
+test.each([
+  [6, 'Leave in 6 minutes'],
+  [1, 'Leave in 1 minute'],
+  [0, 'Leave now'],
+])('adviceHeadline says "%s" minutes as "%s"', (leaveInMinutes, headline) => {
+  expect(adviceHeadline({ ...LEAVE_IN_SIX, leaveInMinutes })).toBe(headline)
+})
+
+test('adviceHeadline says "No departure" when nothing can be caught', () => {
+  expect(adviceHeadline(NO_DEPARTURE)).toBe('No departure')
 })

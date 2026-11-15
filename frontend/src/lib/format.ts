@@ -1,4 +1,4 @@
-import type { PredictionSource } from "../api/types"
+import type { Advice, PredictionSource } from '../api/types'
 
 // Shows times on the Gdańsk clock, whatever time zone the browser is in.
 const gdanskTime = new Intl.DateTimeFormat('en-GB', {
@@ -40,4 +40,16 @@ export function describeDelay(delay: number | null): DelayDescription {
         return { text: `${-delayMinutes} min early`, tone: 'early' }
     }
     return { text: 'On time', tone: 'onTime' }
+}
+
+// The answer of a commute tile in words.
+export function adviceHeadline(advice: Advice): string {
+  if (advice.status === 'noDeparture' || advice.leaveInMinutes === null) {
+    return 'No departure'
+  }
+  if (advice.leaveInMinutes === 0) {
+    return 'Leave now'
+  }
+  const unit = advice.leaveInMinutes === 1 ? 'minute' : 'minutes'
+  return `Leave in ${advice.leaveInMinutes} ${unit}`
 }

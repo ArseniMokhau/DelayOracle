@@ -1,0 +1,187 @@
+/* The My commutes tab: one tile per saved commute. The first tile is the featured one. */
+.commute-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(1rem, 2cqi, 1.5rem);
+}
+
+.commute {
+  box-sizing: border-box;
+  flex: 1 1 16.25rem;
+  padding: 1.625rem;
+  border-radius: 1.75rem;
+  color: var(--on-tile);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(1.25rem, 4cqi, 3.5rem);
+}
+
+/* The colour says what the answer is; the headline says it in words. */
+.commute-go {
+  background: var(--mint);
+}
+
+.commute-wait {
+  background: var(--lilac);
+}
+
+.commute-none,
+.commute-loading {
+  background: var(--mist);
+}
+
+.commute-error {
+  background: var(--coral);
+}
+
+.commute-body {
+  flex: 1 1 15rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.commute-kicker {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.commute-headline {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.625rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.commute-detail {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.pill-list {
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pill {
+  padding: 0.4375rem 0.875rem;
+  background: #ffffff;
+  color: var(--on-tile);
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* The featured commute: the large violet tile with the countdown ring. */
+.commute-featured {
+  flex-basis: 100%;
+  padding: clamp(1.5rem, 4cqi, 3.25rem);
+  background: var(--brand);
+  color: var(--on-brand);
+  border-radius: calc(var(--radius-tile) + 0.25rem);
+}
+
+.commute-featured .commute-body {
+  gap: 1rem;
+}
+
+.commute-featured .commute-kicker {
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  color: var(--on-brand-soft);
+}
+
+.commute-featured .commute-headline {
+  font-size: clamp(2.5rem, 6cqi, 4.75rem);
+  line-height: 0.98;
+}
+
+.commute-featured .commute-detail {
+  font-size: 1.125rem;
+}
+
+.commute-featured .pill {
+  padding: 0.625rem 1rem;
+  background: var(--brand-raised);
+  color: var(--on-brand);
+  font-size: 0.9375rem;
+}
+
+/* The predicted time is the one that matters, so its pill stands out. */
+.commute-featured .pill-strong {
+  background: var(--mint);
+  color: var(--on-tile);
+}
+
+/* The ring and the number inside it share one grid cell, so they sit on top of each other. */
+.ring {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  margin: 0 auto;
+}
+
+.ring > * {
+  grid-area: 1 / 1;
+}
+
+.ring-svg {
+  width: clamp(13.75rem, 28cqi, 20rem);
+  height: clamp(13.75rem, 28cqi, 20rem);
+  /* The ring starts filling from the top instead of from the right. */
+  transform: rotate(-90deg);
+}
+
+.ring-track {
+  fill: none;
+  stroke: var(--brand-raised);
+  stroke-width: 10;
+}
+
+.ring-progress {
+  fill: none;
+  stroke: var(--mint);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.6s ease;
+}
+
+.ring-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ring-number {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(6.25rem, 13cqi, 9.375rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+
+.ring-unit {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: var(--mint);
+}
+
+/* A short confirmation line, for example after commutes were added from a link. */
+.notice {
+  margin: 0;
+  padding: 0.875rem 1.25rem;
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  font-weight: 600;
+}
