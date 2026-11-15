@@ -2,7 +2,7 @@
 
 DelayOracle tells you when to leave home to catch public transport in Gdańsk. It combines live ZTM Gdańsk departures, a delay prediction from a trained model, and your walking time to the stop.
 
-**Status:** the API can store commutes (create, list, read, replace, delete). Live departures, the advice rule, predictions and the real UI come in later milestones (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
+**Status:** the API stores commutes, searches ZTM stops, returns live departures for a stop and answers when to leave for a commute. The predicted delay is currently ZTM's own live delay (`source: "fallback"`); the trained model and the real UI come in later milestones (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
 
 ## Parts
 
@@ -22,13 +22,20 @@ Requirements: .NET 10 SDK, Python 3.14, Node.js 24. Commands are for PowerShell,
 dotnet run --project backend/DelayOracle.Api --urls http://localhost:5000
 ```
 
-The API creates its SQLite database (`backend/DelayOracle.Api/app.db`) on first start. Example:
+The API creates its SQLite database (`backend/DelayOracle.Api/app.db`) on first start. Example (stops and departures need network access to ZTM Gdańsk):
 
 ```powershell
+# Find a stop, then see its live departures
+Invoke-RestMethod "http://localhost:5000/api/stops?query=brama wyz"
+Invoke-RestMethod http://localhost:5000/api/stops/1028/departures
+
+# Save a commute, then ask when to leave (use the id from the first answer)
 Invoke-RestMethod http://localhost:5000/api/commutes -Method Post -ContentType "application/json" `
-  -Body '{"name":"Home to work","stopId":1234,"routeShortName":"8","walkMinutes":5}'
-Invoke-RestMethod http://localhost:5000/api/commutes
+  -Body '{"name":"Home to work","stopId":1028,"walkMinutes":5}'
+Invoke-RestMethod http://localhost:5000/api/commutes/1/advice
 ```
+
+`routeShortName` is optional in a commute; when set, the advice only considers that line.
 
 After changing an entity, generate a migration (run `dotnet tool restore` once first):
 
