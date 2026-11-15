@@ -28,6 +28,15 @@ public class StopService
         return querriedStops;
     }
 
+    // Returns null when there is no stop with this id.
+    public async Task<StopResponse?> GetByIdAsync(int stopId, CancellationToken cancellationToken)
+    {
+        var stops = await GetStopsAsync(cancellationToken);
+
+        return stops.FirstOrDefault(stop => stop.Id == stopId);
+    }
+
+
     // The cleaned stop list, from the cache when it is there.
     private async Task<List<StopResponse>> GetStopsAsync(CancellationToken cancellationToken)
     {

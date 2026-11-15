@@ -26,6 +26,15 @@ public class StopsController : ControllerBase
         return Ok(await _stopService.SearchAsync(query, cancellationToken));
     }
 
+    [HttpGet("{stopId:int}")]
+    public async Task<ActionResult<StopResponse>> GetById(int stopId, CancellationToken cancellationToken)
+    {
+        // The service returns null for an unknown id, which becomes a 404.
+        var stopResponse = await _stopService.GetByIdAsync(stopId, cancellationToken);
+        return stopResponse is null ? NotFound() : Ok(stopResponse);
+    }
+
+
     // ZTM does not say whether a stop exists, so an unknown id gives an empty list, not a 404.
     [HttpGet("{stopId:int}/departures")]
     public async Task<ActionResult<List<DepartureResponse>>> GetDepartures(int stopId, CancellationToken cancellationToken)

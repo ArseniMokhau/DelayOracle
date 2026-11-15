@@ -56,6 +56,7 @@ Base path `/api`. JSON is camelCase. Errors are ProblemDetails.
 | Method and path | Purpose | Success | Errors |
 |---|---|---|---|
 | `GET /stops?query=` | Search stops by name (at most 20 results) | 200 | 400 |
+| `GET /stops/{stopId}` | Read one stop | 200 | 404, 503 |
 | `GET /stops/{stopId}/departures` | Live departures with a predicted delay | 200 | 503 |
 | `GET /commutes?ids=…&ids=…` | List the commutes with these ids, oldest first | 200 | 400 |
 | `POST /commutes` | Create a commute | 201 + `Location` | 400 |
