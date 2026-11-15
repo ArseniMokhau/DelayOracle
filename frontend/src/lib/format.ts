@@ -1,4 +1,5 @@
-import type { Advice, PredictionSource } from '../api/types'
+import type { Advice, PredictionSource, Stop } from '../api/types'
+
 
 // Shows times on the Gdańsk clock, whatever time zone the browser is in.
 const gdanskTime = new Intl.DateTimeFormat('en-GB', {
@@ -52,4 +53,9 @@ export function adviceHeadline(advice: Advice): string {
   }
   const unit = advice.leaveInMinutes === 1 ? 'minute' : 'minutes'
   return `Leave in ${advice.leaveInMinutes} ${unit}`
+}
+
+// Platforms of one stop share a name, so the platform code is part of the label.
+export function stopLabel(stop: Stop): string {
+  return stop.code ? `${stop.name} ${stop.code}` : stop.name
 }

@@ -7,6 +7,7 @@ import {
   GYM_ID,
   LEAVE_IN_SIX,
   NO_DEPARTURE,
+  STOP,
   WORK_COMMUTE,
   WORK_ID,
 } from '../test/fixtures'
@@ -184,4 +185,51 @@ test('shows an error with a retry button when the commutes cannot be loaded', as
   await findTile('Morning to work')
   // The failed load must not make the browser forget the commute.
   expect(loadCommuteIds()).toEqual([WORK_ID])
+})
+
+test('the empty state offers to add the first commute, which opens the form', async () => {
+  stubApi({})
+  renderWithQuery(<CommutesPage />)
+
+  await userEvent.click(screen.getByRole('button', { name: 'Add your first commute' }))
+
+  expect(screen.getByRole('heading', { name: 'New commute' })).toBeTruthy()
+  expect(screen.queryByText('No commutes yet')).toBeNull()
+})
+
+test('saving a new commute remembers its id and shows its tile', async () => {
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/stops?query=': jsonResponse([STOP]),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+    '/api/commutes': jsonResponse(WORK_COMMUTE, 201),
+  })
+  renderWithQuery(<CommutesPage />)
+  await userEvent.click(screen.getByRole('button', { name: 'Add your first commute' }))
+
+  await userEvent.type(screen.getByLabelText('Name'), 'Morning to work')
+  await userEvent.type(screen.getByLabelText('Stop name'), 'brama')
+  await userEvent.click(await screen.findByRole('button', { name: 'Brama Wyżynna 01' }))
+  await userEvent.click(screen.getByRole('button', { name: 'Save commute' }))
+
+  await findTile('Morning to work')
+  expect(screen.queryByRole('heading', { name: 'New commute' })).toBeNull()
+  expect(loadCommuteIds()).toEqual([WORK_ID])
+})
+
+test('the list has a "New commute" button, and Cancel in the form returns to the list', async () => {
+  saveCommuteIds([WORK_ID])
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Morning to work')
+
+  await userEvent.click(screen.getByRole('button', { name: '+ New commute' }))
+  expect(screen.getByRole('heading', { name: 'New commute' })).toBeTruthy()
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+  await findTile('Morning to work')
+  expect(screen.queryByRole('heading', { name: 'New commute' })).toBeNull()
 })

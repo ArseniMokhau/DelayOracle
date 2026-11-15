@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { searchStops } from '../api/stops'
 import type { Stop } from '../api/types'
 import { useDebouncedValue } from '../lib/useDebouncedValue.ts'
+import { stopLabel } from '../lib/format'
 
 // The API rejects searches shorter than this.
 const MIN_QUERY_LENGTH = 2
@@ -12,15 +13,12 @@ const TYPING_PAUSE_MS = 300
 interface StopSearchProps {
   selectedStop: Stop | null
   onSelect: (stop: Stop) => void
-}
-
-// Platforms of one stop share a name, so the platform code is part of the label.
-function stopLabel(stop: Stop): string {
-  return stop.code ? `${stop.name} ${stop.code}` : stop.name
+  // The compact form has no big title; it is used inside the commute form.
+  compact?: boolean
 }
 
 // The search tile of the Departures tab: a text field and the matching stops as buttons.
-function StopSearch({ selectedStop, onSelect }: StopSearchProps) {
+function StopSearch({ selectedStop, onSelect, compact = false }: StopSearchProps) {
   const [text, setText] = useState('')
   const query = useDebouncedValue(text.trim(), TYPING_PAUSE_MS)
   const canSearch = query.length >= MIN_QUERY_LENGTH
@@ -32,8 +30,8 @@ function StopSearch({ selectedStop, onSelect }: StopSearchProps) {
   })
 
   return (
-    <section className="search-tile" aria-label="Stop search">
-      <h2 className="search-title">Where are you leaving from?</h2>
+    <section className={compact ? 'search-tile search-compact' : 'search-tile'} aria-label="Stop search">
+      {!compact && <h2 className="search-title">Where are you leaving from?</h2>}
       <div className="search-field">
         <label htmlFor="stop-search" className="search-label">
           Stop name

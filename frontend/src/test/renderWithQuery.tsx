@@ -22,7 +22,8 @@ export function jsonResponse(data: unknown, status = 200) {
 // answer for it; the first part found in the requested address wins. An address that
 // matches nothing fails the test, so no request can go unnoticed.
 export function stubApi(routes: Record<string, ReturnType<typeof jsonResponse>>) {
-  const fetchMock = vi.fn(async (url: string) => {
+  // The second parameter is what the app passed as method, headers and body; tests read it back.
+  const fetchMock = vi.fn(async (url: string, _options?: RequestInit) => {
     const match = Object.keys(routes).find((part) => url.includes(part))
     if (!match) {
       throw new Error(`Unexpected request in a test: ${url}`)

@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import type { Commute } from '../api/types'
+import CommuteForm from '../components/CommuteForm'
 import { fetchCommutes } from '../api/commutes'
 import CommuteTile from '../components/CommuteTile'
 import StateTile from '../components/StateTile'
@@ -7,7 +9,9 @@ import { useCommuteIds } from '../lib/useCommuteIds'
 
 // The "My commutes" tab: this browser's saved commutes, each with its live answer.
 function CommutesPage() {
-  const { ids, importedCount, forgetIds } = useCommuteIds()
+  const { ids, importedCount, addId, forgetIds } = useCommuteIds()
+  // True while the form for a new commute is open in place of the list.
+  const [isAdding, setIsAdding] = useState(false)
 
   const commutes = useQuery({
     queryKey: ['commutes', ids],
@@ -28,6 +32,21 @@ function CommutesPage() {
     }
   }, [commutes.data, ids, forgetIds])
 
+    function handleSaved(commute: Commute) {
+    // A new id changes the query key above, so the list reloads with the new commute in it.
+    addId(commute.id)
+    setIsAdding(false)
+  }
+
+  if (isAdding) {
+    return (
+      <main className="page">
+        <h1 className="visually-hidden">My commutes</h1>
+        <CommuteForm onSaved={handleSaved} onCancel={() => setIsAdding(false)} />
+      </main>
+    )
+  }
+
   return (
     <main className="page">
       <h1 className="visually-hidden">My commutes</h1>
@@ -43,6 +62,8 @@ function CommutesPage() {
           tone="empty"
           title="No commutes yet"
           text="Add the trip you make most often and you will see when to leave, every time you open the app."
+          actionLabel="Add your first commute"
+          onAction={() => setIsAdding(true)}
         />
       )}
 
@@ -69,6 +90,9 @@ function CommutesPage() {
           {commutes.data.map((commute, index) => (
             <CommuteTile key={commute.id} commute={commute} featured={index === 0} />
           ))}
+          <button type="button" className="commute-add" onClick={() => setIsAdding(true)}>
+            + New commute
+          </button>
         </div>
       )}
     </main>
