@@ -24,16 +24,17 @@ public class DepartureService
     {
         if (departure.Status == "REALTIME" && departure.DelayInSeconds != null)
         {
-            return new DepartureResponse(departure.RouteShortName, 
-                departure.Headsign, departure.TheoreticalTime, departure.EstimatedTime, 
-                departure.DelayInSeconds, departure.DelayInSeconds, departure.EstimatedTime, PredictionSource.Fallback);
-        }
-        else
-        {
-            return new DepartureResponse(departure.RouteShortName, 
-                departure.Headsign, departure.TheoreticalTime, departure.TheoreticalTime, 
-                null, null, departure.TheoreticalTime, PredictionSource.Schedule);
+            return new DepartureResponse(Route: departure.RouteShortName,
+                Headsign: departure.Headsign, ScheduledTime: departure.TheoreticalTime,
+                EstimatedTime: departure.EstimatedTime, CurrentDelaySeconds: departure.DelayInSeconds,
+                PredictedDelaySeconds: departure.DelayInSeconds, PredictedTime: departure.EstimatedTime,
+                Source: PredictionSource.Fallback);
         }
 
+        return new DepartureResponse(Route: departure.RouteShortName,
+            Headsign: departure.Headsign, ScheduledTime: departure.TheoreticalTime,
+            EstimatedTime: departure.TheoreticalTime, CurrentDelaySeconds: null,
+            PredictedDelaySeconds: null, PredictedTime: departure.TheoreticalTime,
+            Source: PredictionSource.Schedule);
     }
 }
