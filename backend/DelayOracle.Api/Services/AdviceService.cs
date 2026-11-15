@@ -18,7 +18,7 @@ public class AdviceService
     }
 
     // Returns null when the commute does not exist.
-    public async Task<AdviceResponse?> GetAdviceAsync(int commuteId, CancellationToken cancellationToken)
+    public async Task<AdviceResponse?> GetAdviceAsync(Guid commuteId, CancellationToken cancellationToken)
     {
         var commute = await _commuteService.GetByIdAsync(commuteId, cancellationToken);
         if (commute is null) { return null; }

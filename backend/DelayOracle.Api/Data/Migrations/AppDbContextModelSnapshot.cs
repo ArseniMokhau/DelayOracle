@@ -19,9 +19,9 @@ namespace DelayOracle.Api.Data.Migrations
 
             modelBuilder.Entity("DelayOracle.Api.Models.Commute", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");

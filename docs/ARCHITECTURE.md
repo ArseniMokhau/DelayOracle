@@ -57,7 +57,7 @@ Base path `/api`. JSON is camelCase. Errors are ProblemDetails.
 |---|---|---|---|
 | `GET /stops?query=` | Search stops by name (at most 20 results) | 200 | 400 |
 | `GET /stops/{stopId}/departures` | Live departures with a predicted delay | 200 | 503 |
-| `GET /commutes` | List commutes | 200 | |
+| `GET /commutes?ids=…&ids=…` | List the commutes with these ids, oldest first | 200 | 400 |
 | `POST /commutes` | Create a commute | 201 + `Location` | 400 |
 | `GET /commutes/{id}` | Read a commute | 200 | 404 |
 | `PUT /commutes/{id}` | Replace a commute | 200 | 400, 404 |
@@ -72,11 +72,11 @@ Departures request flow: the API fetches departures from ZTM, sends the ones wit
 
 Failure behaviour: worker unavailable gives a normal response with `source: "fallback"`; ZTM unavailable gives 503; invalid input gives 400 with field errors; unexpected errors give a 500 ProblemDetails without a stack trace.
 
-There is no authentication. Commutes are shared by all visitors.
+There is no authentication. A commute's id is a random GUID and is the only key to it: the API never lists commutes that were not asked for by id, and unknown ids are left out of the list. The browser remembers the ids of its own commutes, so each visitor sees a personal list. Anyone who is given an id can read, change and delete that commute.
 
 ## Data model
 
-`Commute`: `Id`, `Name` (required, at most 60 characters), `StopId` (required, positive), `RouteShortName` (optional, at most 8 characters), `WalkMinutes` (0 to 60), `CreatedAt` (UTC).
+`Commute`: `Id` (GUID, generated on creation), `Name` (required, at most 60 characters), `StopId` (required, positive), `RouteShortName` (optional, at most 8 characters), `WalkMinutes` (0 to 60), `CreatedAt` (UTC).
 
 The stop list is loaded from ZTM once and kept in memory.
 

@@ -29,11 +29,13 @@ The API creates its SQLite database (`backend/DelayOracle.Api/app.db`) on first 
 Invoke-RestMethod "http://localhost:5000/api/stops?query=brama wyz"
 Invoke-RestMethod http://localhost:5000/api/stops/1028/departures
 
-# Save a commute, then ask when to leave (use the id from the first answer)
-Invoke-RestMethod http://localhost:5000/api/commutes -Method Post -ContentType "application/json" `
+# Save a commute, then ask when to leave
+$commute = Invoke-RestMethod http://localhost:5000/api/commutes -Method Post -ContentType "application/json" `
   -Body '{"name":"Home to work","stopId":1028,"walkMinutes":5}'
-Invoke-RestMethod http://localhost:5000/api/commutes/1/advice
+Invoke-RestMethod "http://localhost:5000/api/commutes/$($commute.id)/advice"
 ```
+
+A commute's id is a random GUID and is the only key to it. There is no login: whoever has the id can read, change and delete the commute, and the API does not list commutes without their ids.
 
 `routeShortName` is optional in a commute; when set, the advice only considers that line.
 

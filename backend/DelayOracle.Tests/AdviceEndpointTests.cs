@@ -109,7 +109,7 @@ public class AdviceEndpointTests : IDisposable
     [Fact]
     public async Task UnknownCommute_Returns404ProblemDetails()
     {
-        var response = await _factory.CreateClient().GetAsync("/api/commutes/999/advice");
+        var response = await _factory.CreateClient().GetAsync($"/api/commutes/{Guid.NewGuid()}/advice");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
@@ -134,7 +134,7 @@ public class AdviceEndpointTests : IDisposable
         return (await response.Content.ReadFromJsonAsync<CommuteResponse>())!;
     }
 
-    private async Task<AdviceResponse> GetAdviceAsync(int commuteId)
+    private async Task<AdviceResponse> GetAdviceAsync(Guid commuteId)
     {
         var url = $"/api/commutes/{commuteId}/advice";
         return (await _factory.CreateClient().GetFromJsonAsync<AdviceResponse>(url))!;
