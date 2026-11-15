@@ -15,7 +15,7 @@ public class AppDbContext : DbContext
     {
         modelBuilder.Entity<Commute>()
                     .Property(commute => commute.CreatedAt)
-                    .HasConversion(value  => value, value => DateTime
+                    .HasConversion(value => value, value => DateTime
                     .SpecifyKind(value, DateTimeKind.Utc));
     }
 }

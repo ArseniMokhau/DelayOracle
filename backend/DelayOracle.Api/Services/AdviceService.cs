@@ -18,8 +18,8 @@ public class AdviceService
     public async Task<AdviceResponse?> GetAdviceAsync(int commuteId, CancellationToken cancellationToken)
     {
         var commute = await _commuteService.GetByIdAsync(commuteId, cancellationToken);
-        if (commute is null) { return null; };
-
+        if (commute is null) { return null; }
+        
         var departures = await _departureService.GetDeparturesAsync(commute.StopId, cancellationToken);
         if (commute.RouteShortName is not null)
         {
