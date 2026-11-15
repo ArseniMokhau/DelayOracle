@@ -8,6 +8,8 @@ uvicorn==0.54.0
 # Model: training and prediction (torch warns at import when numpy is missing)
 torch==2.15.0
 numpy==2.5.4
+# Time zone database for Europe/Warsaw; Windows and slim Docker images do not ship one
+tzdata==2026.6
 
 # Development: tests (httpx is needed by FastAPI's TestClient) and lint
 pytest==9.2.0
