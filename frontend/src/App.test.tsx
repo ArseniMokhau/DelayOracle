@@ -1,25 +1,34 @@
-import { render, screen } from '@testing-library/react'
-import { afterEach, expect, test, vi } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, expect, test } from 'vitest'
 import App from './App'
 
-// The tests replace the global fetch, so no request leaves the test process.
 afterEach(() => {
-  vi.unstubAllGlobals()
+  cleanup()
 })
 
-test('shows that the API is up when the health check succeeds', async () => {
-  const okResponse = { ok: true, json: async () => ({ status: 'ok' }) }
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(okResponse))
-
+test('shows the brand and both tabs', () => {
   render(<App />)
 
-  expect(await screen.findByText('API is up')).toBeTruthy()
+  expect(screen.getByText('DelayOracle')).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'Departures' })).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'My commutes' })).toBeTruthy()
 })
 
-test('shows an error when the health check fails', async () => {
-  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network down')))
-
+test('starts on the My commutes tab', () => {
   render(<App />)
 
-  expect(await screen.findByText('API is not reachable')).toBeTruthy()
+  expect(screen.getByRole('heading', { level: 1, name: 'My commutes' })).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'My commutes' }).getAttribute('aria-current')).toBe('page')
+  expect(screen.getByRole('button', { name: 'Departures' }).getAttribute('aria-current')).toBeNull()
+})
+
+test('clicking the Departures tab shows the departures screen', async () => {
+  render(<App />)
+
+  await userEvent.click(screen.getByRole('button', { name: 'Departures' }))
+
+  expect(screen.getByRole('heading', { level: 1, name: 'Departures' })).toBeTruthy()
+  expect(screen.queryByRole('heading', { level: 1, name: 'My commutes' })).toBeNull()
+  expect(screen.getByRole('button', { name: 'Departures' }).getAttribute('aria-current')).toBe('page')
 })

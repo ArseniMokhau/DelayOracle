@@ -1,31 +1,44 @@
-import { useEffect, useState } from 'react'
-import { fetchHealth } from './api/health'
+import { useState } from 'react'
+import BrandMark from './components/BrandMark'
+import CommutesPage from './pages/CommutesPage'
+import DeparturesPage from './pages/DeparturesPage'
 
-// Placeholder screen until the real UI is built: it shows whether the API can be reached.
-type ApiState = 'loading' | 'up' | 'down'
 
-const MESSAGES: Record<ApiState, string> = {
-  loading: 'Checking the API…',
-  up: 'API is up',
-  down: 'API is not reachable',
-}
+type Tab = 'departures' | 'commutes'
 
-function App() {
-  const [apiState, setApiState] = useState<ApiState>('loading')
-
-  // Runs once after the first render.
-  useEffect(() => {
-    fetchHealth()
-      .then(() => setApiState('up'))
-      .catch(() => setApiState('down'))
-  }, [])
+function App(){
+  const [tab, setTab] = useState<Tab>('commutes')
 
   return (
-    <main>
-      <h1>DelayOracle</h1>
-      <p>When to leave home to catch public transport in Gdańsk.</p>
-      <p role="status">{MESSAGES[apiState]}</p>
-    </main>
+    <div className='app'>
+      <div className='app-inner'>
+        <header className='app-header'>
+          <div className='brand'>
+            <BrandMark />
+            <span className="brand-name">DelayOracle</span>
+          </div>
+          <nav className='tabs' aria-label='Sections'>
+            <button
+              type='button'
+              className='tab'
+              aria-current={tab === 'departures' ? 'page' : undefined}
+              onClick={() => setTab('departures')}
+            >
+              Departures
+            </button>
+            <button
+              type='button'
+              className='tab'
+              aria-current={tab === 'commutes' ? 'page' : undefined}
+              onClick={() => setTab('commutes')}
+            >
+              My commutes
+            </button>
+          </nav>
+        </header>
+        {tab === 'departures' ? <DeparturesPage/> : <CommutesPage/>}
+      </div>
+    </div>
   )
 }
 
