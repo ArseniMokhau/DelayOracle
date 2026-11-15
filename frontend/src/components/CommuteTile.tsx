@@ -72,7 +72,12 @@ function CommuteTile({ commute, featured, onEdit, onDelete }: CommuteTileProps) 
           </p>
         )}
 
-        {advice.data && <h2 className="commute-headline">{adviceHeadline(advice.data)}</h2>}
+        {/* The key makes React draw a new heading when the words change, which replays its fade-in. */}
+        {advice.data && (
+          <h2 key={adviceHeadline(advice.data)} className="commute-headline">
+            {adviceHeadline(advice.data)}
+          </h2>
+        )}
 
         {advice.data && !departure && (
           <p className="commute-detail">Nothing you can still catch right now</p>

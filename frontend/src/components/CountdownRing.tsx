@@ -26,7 +26,10 @@ function CountdownRing({ minutes }: CountdownRingProps) {
         />
       </svg>
       <div className="ring-label">
-        <span className="ring-number">{minutes}</span>
+        {/* The key makes React draw a new element for each number, which replays its fade-in. */}
+        <span key={minutes} className="ring-number">
+          {minutes}
+        </span>
         <span className="ring-unit">{minutes === 1 ? 'minute' : 'minutes'}</span>
       </div>
     </div>

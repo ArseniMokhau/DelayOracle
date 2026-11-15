@@ -1,9 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { searchStops } from '../api/stops'
 import type { Stop } from '../api/types'
-import { useDebouncedValue } from '../lib/useDebouncedValue.ts'
 import { stopLabel } from '../lib/format'
+import { useDebouncedValue } from '../lib/useDebouncedValue'
 
 // The API rejects searches shorter than this.
 const MIN_QUERY_LENGTH = 2
@@ -15,11 +15,21 @@ interface StopSearchProps {
   onSelect: (stop: Stop) => void
   // The compact form has no big title; it is used inside the commute form.
   compact?: boolean
+  // Lets a parent remember the text: it gives the starting text and hears every change.
+  initialText?: string
+  onTextChange?: (text: string) => void
 }
 
-// The search tile of the Departures tab: a text field and the matching stops as buttons.
-function StopSearch({ selectedStop, onSelect, compact = false }: StopSearchProps) {
-  const [text, setText] = useState('')
+// A text field and the matching stops as buttons: the search tile of the Departures tab,
+// and the stop picker of the commute form.
+function StopSearch({
+  selectedStop,
+  onSelect,
+  compact = false,
+  initialText = '',
+  onTextChange,
+}: StopSearchProps) {
+  const [text, setText] = useState(initialText)
   const query = useDebouncedValue(text.trim(), TYPING_PAUSE_MS)
   const canSearch = query.length >= MIN_QUERY_LENGTH
 
@@ -27,7 +37,20 @@ function StopSearch({ selectedStop, onSelect, compact = false }: StopSearchProps
     queryKey: ['stops', query],
     queryFn: () => searchStops(query),
     enabled: canSearch,
+    // While the next search loads, the stops of the previous one stay on screen.
+    placeholderData: keepPreviousData,
   })
+
+  const found = stops.data ?? []
+  // True while `found` still belongs to the previous search.
+  const isStale = stops.isPlaceholderData
+  const isSearching = stops.isPending || (isStale && found.length === 0)
+  const hasNoMatch = stops.isSuccess && !isStale && found.length === 0
+
+  function handleTextChange(newText: string) {
+    setText(newText)
+    onTextChange?.(newText)
+  }
 
   return (
     <section className={compact ? 'search-tile search-compact' : 'search-tile'} aria-label="Stop search">
@@ -41,13 +64,13 @@ function StopSearch({ selectedStop, onSelect, compact = false }: StopSearchProps
           type="search"
           className="search-input"
           value={text}
-          onChange={(event) => setText(event.target.value)}
+          onChange={(event) => handleTextChange(event.target.value)}
         />
       </div>
 
       {!canSearch && <p className="search-message">Type at least two letters</p>}
 
-      {canSearch && stops.isPending && (
+      {canSearch && isSearching && (
         <p className="search-message" role="status">
           Searching…
         </p>
@@ -59,13 +82,11 @@ function StopSearch({ selectedStop, onSelect, compact = false }: StopSearchProps
         </p>
       )}
 
-      {canSearch && stops.data?.length === 0 && (
-        <p className="search-message">No stop matches “{query}”</p>
-      )}
+      {canSearch && hasNoMatch && <p className="search-message">No stop matches “{query}”</p>}
 
-      {canSearch && stops.data && stops.data.length > 0 && (
-        <ul className="stop-list">
-          {stops.data.map((stop) => (
+      {canSearch && found.length > 0 && (
+        <ul className={isStale ? 'stop-list is-stale' : 'stop-list'}>
+          {found.map((stop) => (
             <li key={stop.id}>
               <button
                 type="button"

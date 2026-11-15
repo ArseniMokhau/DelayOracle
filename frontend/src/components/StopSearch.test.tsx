@@ -111,3 +111,37 @@ test('shows an error when the stops cannot be loaded', async () => {
   const alert = await screen.findByRole('alert')
   expect(alert.textContent).toBe('Stops could not be loaded. Try again in a moment.')
 })
+
+test('keeps the previous stops on screen while the next search is loading', async () => {
+  // The first search answers; the second one never does.
+  const fetchMock = vi
+    .fn()
+    .mockResolvedValueOnce(jsonResponse([PLATFORM_1]))
+    .mockReturnValue(new Promise(() => {}))
+  vi.stubGlobal('fetch', fetchMock)
+  renderWithQuery(<StopSearch selectedStop={null} onSelect={() => {}} />)
+  await typeInSearch('bra')
+  await screen.findByRole('button', { name: 'Brama Wyżynna 01' })
+
+  await typeInSearch('ma')
+  await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
+
+  expect(screen.getByRole('button', { name: 'Brama Wyżynna 01' })).toBeTruthy()
+  expect(screen.queryByText('Searching…')).toBeNull()
+})
+
+test('starts from the text it is given and reports every change of it', async () => {
+  stubFetch(jsonResponse([PLATFORM_1]))
+  const onTextChange = vi.fn()
+  renderWithQuery(
+    <StopSearch selectedStop={null} onSelect={() => {}} initialText="brama" onTextChange={onTextChange} />,
+  )
+  const field = screen.getByLabelText('Stop name') as HTMLInputElement
+  expect(field.value).toBe('brama')
+  // The given text is searched for without any typing.
+  await screen.findByRole('button', { name: 'Brama Wyżynna 01' })
+
+  await typeInSearch(' w')
+
+  expect(onTextChange).toHaveBeenLastCalledWith('brama w')
+})

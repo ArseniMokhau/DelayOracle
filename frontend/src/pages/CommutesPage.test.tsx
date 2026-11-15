@@ -200,6 +200,7 @@ test('the empty state offers to add the first commute, which opens the form', as
 test('saving a new commute remembers its id and shows its tile', async () => {
   stubApi({
     '/advice': jsonResponse(NO_DEPARTURE),
+    '/departures': jsonResponse([]),
     '/api/stops?query=': jsonResponse([STOP]),
     '/api/commutes?': jsonResponse([WORK_COMMUTE]),
     '/api/commutes': jsonResponse(WORK_COMMUTE, 201),
@@ -245,6 +246,7 @@ test('the edit button opens the form with the commute, and saving shows the new 
   saveCommuteIds([WORK_ID])
   const fetchMock = stubApi({
     '/advice': jsonResponse(NO_DEPARTURE),
+    '/departures': jsonResponse([]),
     '/api/commutes?': jsonResponse([WORK_COMMUTE]),
   })
   renderWithQuery(<CommutesPage />)
@@ -259,6 +261,7 @@ test('the edit button opens the form with the commute, and saving shows the new 
   const renamed = { ...WORK_COMMUTE, name: 'Evening shift' }
   fetchMock.mockImplementation(async (url: string) => {
     if (url.includes('/advice')) return jsonResponse(NO_DEPARTURE)
+    if (url.includes('/departures')) return jsonResponse([])
     return url.includes('?') ? jsonResponse([renamed]) : jsonResponse(renamed)
   })
   await userEvent.clear(name)

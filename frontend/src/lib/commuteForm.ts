@@ -1,4 +1,4 @@
-import type { Commute, CommuteInput } from '../api/types'
+import type { Commute, CommuteInput, Departure } from '../api/types'
 
 // What the form holds while the user types. Text fields stay text until saving,
 // so a half-typed number like "" or "5." can be shown as it is.
@@ -70,4 +70,10 @@ export function toCommuteInput(values: CommuteFormValues): CommuteInput {
     routeShortName: line === '' ? null : line,
     walkMinutes: Number(values.walkMinutes.trim()),
   }
+}
+
+// The lines among these departures, each once: numbers in counting order, then letters.
+export function linesAt(departures: Departure[]): string[] {
+  const lines = new Set(departures.map((departure) => departure.route))
+  return [...lines].sort((a, b) => a.localeCompare(b, 'pl', { numeric: true }))
 }

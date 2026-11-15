@@ -1,0 +1,42 @@
+/* Small movements that make changes on screen easier to follow.
+   base.css switches all of them off for users who ask for reduced motion. */
+
+/* New content fades in and settles, instead of popping into place. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+}
+
+.search-message,
+.stop-list li,
+.departure,
+.commute-headline,
+.commute-detail,
+.pill-list,
+.ring-number,
+.line-suggestions {
+  animation: fade-in 0.3s ease both;
+}
+
+/* Results of the previous search stay visible, dimmed, until the new ones arrive. */
+.stop-list {
+  transition: opacity 0.2s ease;
+}
+
+.stop-list.is-stale {
+  opacity: 0.55;
+}
+
+/* A tile changes colour gradually when its answer changes, for example from "wait" to "go". */
+.commute {
+  transition: background-color 0.4s ease;
+}
+
+.stop-pill,
+.line-chip {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}

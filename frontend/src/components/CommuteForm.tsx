@@ -1,7 +1,8 @@
-import { useMutation } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { createCommute, updateCommute } from '../api/commutes'
 import type { Commute, Stop } from '../api/types'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { fetchDepartures } from '../api/departures'
 import {
   type CommuteFormErrors,
   type CommuteFormValues,
@@ -9,6 +10,7 @@ import {
   formValuesOf,
   toCommuteInput,
   validateCommuteForm,
+  linesAt,
 } from '../lib/commuteForm'
 import { stopLabel } from '../lib/format'
 import StopSearch from './StopSearch'
@@ -28,6 +30,14 @@ function CommuteForm({ commute, onSaved, onCancel }: CommuteFormProps) {
   const [errors, setErrors] = useState<CommuteFormErrors>({})
   // The stop picked in this form; null while an edited commute still has its old stop.
   const [pickedStop, setPickedStop] = useState<Stop | null>(null)
+
+  // The upcoming departures of the chosen stop tell which lines can be offered.
+  const stopDepartures = useQuery({
+    queryKey: ['departures', values.stopId],
+    queryFn: () => fetchDepartures(values.stopId ?? 0),
+    enabled: values.stopId !== null,
+  })
+  const suggestedLines = linesAt(stopDepartures.data ?? [])
 
   const save = useMutation({
     mutationFn: () => {
@@ -81,6 +91,7 @@ function CommuteForm({ commute, onSaved, onCancel }: CommuteFormProps) {
           )}
         </div>
 
+
         <div className="field">
           <StopSearch compact selectedStop={pickedStop} onSelect={pickStop} />
           {pickedStop && <p className="field-hint">{`Selected: ${stopLabel(pickedStop)}`}</p>}
@@ -111,6 +122,24 @@ function CommuteForm({ commute, onSaved, onCancel }: CommuteFormProps) {
               <p id="commute-line-hint" className="field-hint">
                 Leave empty for any line
               </p>
+            )}
+            {suggestedLines.length > 0 && (
+              <div className="line-suggestions" role="group" aria-labelledby="line-suggestions-label">
+                <p id="line-suggestions-label" className="line-suggestions-label">
+                  Lines leaving this stop soon
+                </p>
+                {suggestedLines.map((line) => (
+                  <button
+                    key={line}
+                    type="button"
+                    className="line-chip"
+                    aria-pressed={values.routeShortName.trim() === line}
+                    onClick={() => setValues({ ...values, routeShortName: line })}
+                  >
+                    {line}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 

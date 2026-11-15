@@ -1,9 +1,10 @@
 import { expect, test } from 'vitest'
-import { WORK_COMMUTE } from '../test/fixtures'
+import { LATE_TRAM, TIMETABLE_BUS, WORK_COMMUTE } from '../test/fixtures'
 import {
   type CommuteFormValues,
   emptyCommuteForm,
   formValuesOf,
+  linesAt,
   toCommuteInput,
   validateCommuteForm,
 } from './commuteForm'
@@ -75,4 +76,20 @@ test('formValuesOf fills the form from an existing commute', () => {
     walkMinutes: '5',
   })
   expect(formValuesOf({ ...WORK_COMMUTE, routeShortName: null }).routeShortName).toBe('')
+})
+
+test('linesAt lists each line once, numbers in counting order and letters after them', () => {
+  const departures = [
+    { ...LATE_TRAM, route: 'N1' },
+    { ...LATE_TRAM, route: '154' },
+    TIMETABLE_BUS,
+    LATE_TRAM,
+    { ...TIMETABLE_BUS, route: '6' },
+  ]
+
+  expect(linesAt(departures)).toEqual(['6', '111', '154', 'N1'])
+})
+
+test('linesAt gives an empty list when nothing departs', () => {
+  expect(linesAt([])).toEqual([])
 })
