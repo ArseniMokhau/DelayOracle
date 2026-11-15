@@ -2,7 +2,7 @@ namespace DelayOracle.Api.Models;
 
 // A commute as the API returns it.
 public record CommuteResponse(
-    int Id,
+    Guid Id,
     string Name,
     int StopId,
     string? RouteShortName,

@@ -1,0 +1,57 @@
+/* Design tokens: every colour, radius and font used by the app is named here once.
+   Components use the names, so the dark scheme only has to redefine this list. */
+:root {
+  color-scheme: light dark;
+
+  /* Page and surfaces */
+  --bg: #f1f2f8;
+  --surface: #ffffff;
+  --surface-muted: #f1f2f8;
+  --ink: #150b40;
+  --ink-soft: #4a4270;
+  --line: #6f66a0;
+
+  /* The violet brand tile and what sits on it */
+  --brand: #2a1578;
+  --brand-raised: #4630a6;
+  --on-brand: #ffffff;
+  --on-brand-soft: #c9bdff;
+
+  /* Bright tiles. Text on them is always --on-tile, in both schemes. */
+  --mint: #7cf2b4;
+  --sun: #ffd84d;
+  --lilac: #c9bdff;
+  --coral: #ffb59e;
+  --sky: #b9d8ff;
+  --mist: #dcd9ec;
+  --on-tile: #150b40;
+
+  /* Errors and destructive actions */
+  --danger-fill: #b3261e;
+  --danger-text: #b3261e;
+  --danger-surface: #fff1ec;
+
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  --radius-tile: 2rem;
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0a24;
+    --surface: #1b1440;
+    --surface-muted: #261d57;
+    --ink: #f1eeff;
+    --ink-soft: #b9b1de;
+    --line: #8279b8;
+
+    --brand: #3a23a0;
+    --brand-raised: #5540c0;
+
+    --danger-text: #ffb4ab;
+    --danger-surface: #3b1512;
+  }
+}

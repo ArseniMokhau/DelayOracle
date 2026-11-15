@@ -1,0 +1,394 @@
+import { cleanup, screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { loadCommuteIds, saveCommuteIds } from '../lib/commuteIds'
+import {
+  GYM_COMMUTE,
+  GYM_ID,
+  LEAVE_IN_SIX,
+  NO_DEPARTURE,
+  STOP,
+  WORK_COMMUTE,
+  WORK_ID,
+} from '../test/fixtures'
+import { jsonResponse, renderWithQuery, stubApi } from '../test/renderWithQuery'
+import CommutesPage from './CommutesPage'
+
+beforeEach(() => {
+  localStorage.clear()
+  window.location.hash = ''
+})
+
+afterEach(() => {
+  cleanup()
+  vi.unstubAllGlobals()
+})
+
+// The tile of one commute, found by the commute's name.
+async function findTile(name: string) {
+  const kicker = await screen.findByText((text) => text.startsWith(name))
+  return within(kicker.closest('article')!)
+}
+
+test('says there are no commutes yet when none are saved, and asks the API for nothing', () => {
+  const fetchMock = stubApi({})
+
+  renderWithQuery(<CommutesPage />)
+
+  expect(screen.getByText('No commutes yet')).toBeTruthy()
+  expect(fetchMock).not.toHaveBeenCalled()
+})
+
+test('loads the saved commutes by their ids and shows a tile for each', async () => {
+  saveCommuteIds([WORK_ID, GYM_ID])
+  const fetchMock = stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE, GYM_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  const work = await findTile('Morning to work')
+  expect(work.getByText('Morning to work · Line 6 · 5 min walk')).toBeTruthy()
+  const gym = await findTile('Gym')
+  expect(gym.getByText('Gym · Any line · 3 min walk')).toBeTruthy()
+  const listRequest = fetchMock.mock.calls.map((call) => call[0]).find((url) => url.includes('?'))
+  expect(listRequest).toMatch(new RegExp(`/api/commutes\\?ids=${WORK_ID}&ids=${GYM_ID}$`))
+})
+
+test('says the commutes are loading until the answer arrives', () => {
+  saveCommuteIds([WORK_ID])
+  vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})))
+
+  renderWithQuery(<CommutesPage />)
+
+  expect(screen.getByRole('status').textContent).toContain('Loading your commutes')
+})
+
+test('shows when to leave, with the departure it is based on', async () => {
+  saveCommuteIds([WORK_ID])
+  stubApi({
+    [`${WORK_ID}/advice`]: jsonResponse(LEAVE_IN_SIX),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  const tile = await findTile('Morning to work')
+  expect(await tile.findByRole('heading', { name: 'Leave in 6 minutes' })).toBeTruthy()
+  expect(tile.getByText('Out of the door by 18:14')).toBeTruthy()
+  expect(tile.getByText('6 → Łostowice Świętokrzyska')).toBeTruthy()
+  expect(tile.getByText('Scheduled 18:18')).toBeTruthy()
+  expect(tile.getByText('Predicted 18:20')).toBeTruthy()
+  expect(tile.getByText('3 min late · Model')).toBeTruthy()
+})
+
+test('says "No departure" when nothing can be caught', async () => {
+  saveCommuteIds([GYM_ID])
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([GYM_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  const tile = await findTile('Gym')
+  expect(await tile.findByRole('heading', { name: 'No departure' })).toBeTruthy()
+  expect(tile.getByText('Nothing you can still catch right now')).toBeTruthy()
+})
+
+test('each commute shows its own advice', async () => {
+  saveCommuteIds([WORK_ID, GYM_ID])
+  stubApi({
+    [`${WORK_ID}/advice`]: jsonResponse(LEAVE_IN_SIX),
+    [`${GYM_ID}/advice`]: jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE, GYM_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  expect(await (await findTile('Morning to work')).findByText('Leave in 6 minutes')).toBeTruthy()
+  expect(await (await findTile('Gym')).findByText('No departure')).toBeTruthy()
+})
+
+test('a commute whose advice cannot be loaded says that ZTM is not answering', async () => {
+  saveCommuteIds([WORK_ID])
+  stubApi({
+    '/advice': jsonResponse(null, 503),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  const tile = await findTile('Morning to work')
+  expect((await tile.findByRole('alert')).textContent).toBe('Live departures are not answering')
+})
+
+test('forgets an id the server no longer knows', async () => {
+  saveCommuteIds([WORK_ID, GYM_ID])
+  // The gym commute was deleted on another device: the API leaves it out.
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  await findTile('Morning to work')
+  await waitFor(() => expect(loadCommuteIds()).toEqual([WORK_ID]))
+})
+
+test('opened from a share link, it adds those commutes, says so and cleans the address', async () => {
+  saveCommuteIds([WORK_ID])
+  window.location.hash = `#commutes=${GYM_ID}`
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE, GYM_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  await findTile('Gym')
+  expect(screen.getByText('1 commute added from the link')).toBeTruthy()
+  expect(loadCommuteIds()).toEqual([WORK_ID, GYM_ID])
+  expect(window.location.hash).toBe('')
+})
+
+test('a share link with commutes this browser already has adds nothing', async () => {
+  saveCommuteIds([WORK_ID])
+  window.location.hash = `#commutes=${WORK_ID}`
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  await findTile('Morning to work')
+  expect(screen.queryByText(/added from the link/)).toBeNull()
+  expect(loadCommuteIds()).toEqual([WORK_ID])
+})
+
+test('shows an error with a retry button when the commutes cannot be loaded', async () => {
+  saveCommuteIds([WORK_ID])
+  const fetchMock = stubApi({ '/api/commutes?': jsonResponse(null, 500) })
+  renderWithQuery(<CommutesPage />)
+  const alert = await screen.findByRole('alert')
+  expect(alert.textContent).toContain('Your commutes could not be loaded')
+
+  // The API is back before the user retries.
+  fetchMock.mockImplementation(async (url: string) =>
+    url.includes('/advice')
+      ? jsonResponse(NO_DEPARTURE)
+      : url.includes('/api/stops/')
+        ? jsonResponse(STOP)
+        : jsonResponse([WORK_COMMUTE]),
+  )
+  await userEvent.click(within(alert).getByRole('button', { name: 'Try again' }))
+
+  await findTile('Morning to work')
+  // The failed load must not make the browser forget the commute.
+  expect(loadCommuteIds()).toEqual([WORK_ID])
+})
+
+test('the empty state offers to add the first commute, which opens the form', async () => {
+  stubApi({})
+  renderWithQuery(<CommutesPage />)
+
+  await userEvent.click(screen.getByRole('button', { name: 'Add your first commute' }))
+
+  expect(screen.getByRole('heading', { name: 'New commute' })).toBeTruthy()
+  expect(screen.queryByText('No commutes yet')).toBeNull()
+})
+
+test('saving a new commute remembers its id and shows its tile', async () => {
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/departures': jsonResponse([]),
+    '/api/stops?query=': jsonResponse([STOP]),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+    '/api/commutes': jsonResponse(WORK_COMMUTE, 201),
+  })
+  renderWithQuery(<CommutesPage />)
+  await userEvent.click(screen.getByRole('button', { name: 'Add your first commute' }))
+
+  await userEvent.type(screen.getByLabelText('Name'), 'Morning to work')
+  await userEvent.type(screen.getByLabelText('Stop name'), 'brama')
+  await userEvent.click(await screen.findByRole('button', { name: 'Brama Wyżynna 01' }))
+  await userEvent.click(screen.getByRole('button', { name: 'Save commute' }))
+
+  await findTile('Morning to work')
+  expect(screen.queryByRole('heading', { name: 'New commute' })).toBeNull()
+  expect(loadCommuteIds()).toEqual([WORK_ID])
+})
+
+test('the list has a "New commute" button, and Cancel in the form returns to the list', async () => {
+  saveCommuteIds([WORK_ID])
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Morning to work')
+
+  await userEvent.click(screen.getByRole('button', { name: '+ New commute' }))
+  expect(screen.getByRole('heading', { name: 'New commute' })).toBeTruthy()
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+  await findTile('Morning to work')
+  expect(screen.queryByRole('heading', { name: 'New commute' })).toBeNull()
+})
+
+// The requests that changed something (POST, PUT, DELETE), as [address, method] pairs.
+function changes(fetchMock: ReturnType<typeof stubApi>) {
+  return fetchMock.mock.calls
+    .filter((call) => call[1]?.method !== undefined)
+    .map((call) => [call[0], call[1]?.method])
+}
+
+test('the edit button opens the form with the commute, and saving shows the new values', async () => {
+  saveCommuteIds([WORK_ID])
+  const fetchMock = stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/departures': jsonResponse([]),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Morning to work')
+
+  await userEvent.click(screen.getByRole('button', { name: 'Edit Morning to work' }))
+  expect(screen.getByRole('heading', { name: 'Edit commute' })).toBeTruthy()
+  const name = screen.getByLabelText('Name') as HTMLInputElement
+  expect(name.value).toBe('Morning to work')
+
+  // From here on the server knows the commute under its new name.
+  const renamed = { ...WORK_COMMUTE, name: 'Evening shift' }
+  fetchMock.mockImplementation(async (url: string) => {
+    if (url.includes('/advice')) return jsonResponse(NO_DEPARTURE)
+    if (url.includes('/departures')) return jsonResponse([])
+    if (url.includes('/api/stops/')) return jsonResponse(STOP)
+    return url.includes('?') ? jsonResponse([renamed]) : jsonResponse(renamed)
+  })
+  await userEvent.clear(name)
+  await userEvent.type(name, 'Evening shift')
+  await userEvent.click(screen.getByRole('button', { name: 'Save commute' }))
+
+  await findTile('Evening shift')
+  expect(screen.queryByRole('heading', { name: 'Edit commute' })).toBeNull()
+  expect(changes(fetchMock)).toEqual([[expect.stringMatching(new RegExp(`/api/commutes/${WORK_ID}$`)), 'PUT']])
+})
+
+test('the delete button asks first, and "Keep it" changes nothing', async () => {
+  saveCommuteIds([GYM_ID])
+  const fetchMock = stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([GYM_COMMUTE]),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Gym')
+
+  await userEvent.click(screen.getByRole('button', { name: 'Delete Gym' }))
+  expect(screen.getByRole('alertdialog', { name: 'Delete “Gym”?' })).toBeTruthy()
+  await userEvent.click(screen.getByRole('button', { name: 'Keep it' }))
+
+  expect(screen.queryByRole('alertdialog')).toBeNull()
+  expect(changes(fetchMock)).toEqual([])
+  expect(loadCommuteIds()).toEqual([GYM_ID])
+})
+
+test('confirming the delete removes the commute on the server and from this browser', async () => {
+  saveCommuteIds([WORK_ID, GYM_ID])
+  const fetchMock = stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE, GYM_COMMUTE]),
+    [`/api/commutes/${GYM_ID}`]: jsonResponse(null, 204),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Gym')
+
+  await userEvent.click(screen.getByRole('button', { name: 'Delete Gym' }))
+  await userEvent.click(screen.getByRole('button', { name: 'Delete commute' }))
+
+  await waitFor(() => expect(loadCommuteIds()).toEqual([WORK_ID]))
+  expect(screen.queryByRole('alertdialog')).toBeNull()
+  expect(changes(fetchMock)).toEqual([[expect.stringMatching(new RegExp(`/api/commutes/${GYM_ID}$`)), 'DELETE']])
+})
+
+test('a commute that is already gone on the server is forgotten all the same', async () => {
+  saveCommuteIds([GYM_ID])
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([GYM_COMMUTE]),
+    [`/api/commutes/${GYM_ID}`]: jsonResponse(null, 404),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Gym')
+
+  await userEvent.click(screen.getByRole('button', { name: 'Delete Gym' }))
+  await userEvent.click(screen.getByRole('button', { name: 'Delete commute' }))
+
+  await waitFor(() => expect(loadCommuteIds()).toEqual([]))
+  expect(await screen.findByText('No commutes yet')).toBeTruthy()
+})
+
+test('when the delete fails, the dialog says so and the commute stays', async () => {
+  saveCommuteIds([GYM_ID])
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([GYM_COMMUTE]),
+    [`/api/commutes/${GYM_ID}`]: jsonResponse(null, 500),
+  })
+  renderWithQuery(<CommutesPage />)
+  await findTile('Gym')
+
+  await userEvent.click(screen.getByRole('button', { name: 'Delete Gym' }))
+  await userEvent.click(screen.getByRole('button', { name: 'Delete commute' }))
+
+  const alert = await screen.findByRole('alert')
+  expect(alert.textContent).toBe('The commute could not be deleted. Try again in a moment.')
+  expect(screen.getByRole('alertdialog')).toBeTruthy()
+  expect(loadCommuteIds()).toEqual([GYM_ID])
+})
+
+test('the list offers to copy a share link', async () => {
+  saveCommuteIds([WORK_ID])
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  await findTile('Morning to work')
+  expect(screen.getByRole('button', { name: 'Copy link' })).toBeTruthy()
+})
+
+test('a tile names the stop of its commute', async () => {
+  saveCommuteIds([WORK_ID])
+  const fetchMock = stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/stops/1028': jsonResponse(STOP),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  expect(await screen.findByText('Morning to work · Brama Wyżynna 01 · Line 6 · 5 min walk')).toBeTruthy()
+  const requested = fetchMock.mock.calls.map((call) => call[0])
+  expect(requested.some((url) => url.endsWith('/api/stops/1028'))).toBe(true)
+})
+
+test('a tile whose stop name cannot be loaded shows the rest of its line', async () => {
+  saveCommuteIds([WORK_ID])
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/stops/1028': jsonResponse(null, 404),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  const tile = await findTile('Morning to work')
+  expect(await tile.findByText('No departure')).toBeTruthy()
+  expect(tile.getByText('Morning to work · Line 6 · 5 min walk')).toBeTruthy()
+})

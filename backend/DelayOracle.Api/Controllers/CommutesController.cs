@@ -20,13 +20,13 @@ public class CommutesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<CommuteResponse>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<CommuteResponse>>> GetByIds([FromQuery]List<Guid> ids, CancellationToken cancellationToken)
     {
-        return Ok(await _commuteService.GetAllAsync(cancellationToken));
+        return Ok(await _commuteService.GetByIdsAsync(ids, cancellationToken));
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<CommuteResponse>> GetById(int id, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<CommuteResponse>> GetById(Guid id, CancellationToken cancellationToken)
     {
         // The service returns null for an unknown id, which becomes a 404.
         var commuteResponse = await _commuteService.GetByIdAsync(id, cancellationToken);
@@ -41,23 +41,23 @@ public class CommutesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
-    [HttpPut("{id:int}")]
-    public async Task<ActionResult<CommuteResponse>> Update(int id, CommuteRequest commuteRequest, CancellationToken cancellationToken)
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<CommuteResponse>> Update(Guid id, CommuteRequest commuteRequest, CancellationToken cancellationToken)
     {
         var commuteResponse = await _commuteService.UpdateAsync(id, commuteRequest, cancellationToken);
         return commuteResponse is null ? NotFound() : Ok(commuteResponse);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         var deletionResult = await _commuteService.DeleteAsync(id, cancellationToken);
         return deletionResult ? NoContent() : NotFound();
     }
 
     // When to leave home for this commute, from the live departures of its stop.
-    [HttpGet("{id:int}/advice")]
-    public async Task<ActionResult<AdviceResponse>> GetAdvice(int id, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}/advice")]
+    public async Task<ActionResult<AdviceResponse>> GetAdvice(Guid id, CancellationToken cancellationToken)
     {
         var adviceResponse = await _adviceService.GetAdviceAsync(id, cancellationToken);
         return adviceResponse is null ? NotFound() : Ok(adviceResponse);

@@ -32,15 +32,17 @@ public class CommuteService
         return ToResponse(commute);
     }
 
-    public async Task<List<CommuteResponse>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<List<CommuteResponse>> GetByIdsAsync(List<Guid> ids, CancellationToken cancellationToken)
     {
-        var commutes = await _db.Commutes.ToListAsync(cancellationToken);
+        var commutes = await _db.Commutes.Where(commute => ids.Contains(commute.Id))
+                                            .OrderBy(commute => commute.CreatedAt)
+                                            .ToListAsync(cancellationToken);
 
         return commutes.Select(ToResponse).ToList();
     }
 
     // Returns null when there is no commute with this id.
-    public async Task<CommuteResponse?> GetByIdAsync(int id, CancellationToken cancellationToken)
+    public async Task<CommuteResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var commute = await _db.Commutes.FindAsync([id], cancellationToken);
 
@@ -48,7 +50,7 @@ public class CommuteService
     }
 
     // Replaces every editable field. Returns null when there is no commute with this id.
-    public async Task<CommuteResponse?> UpdateAsync(int id, CommuteRequest commuteRequest, CancellationToken cancellationToken)
+    public async Task<CommuteResponse?> UpdateAsync(Guid id, CommuteRequest commuteRequest, CancellationToken cancellationToken)
     {
         var commute = await _db.Commutes.FindAsync([id], cancellationToken);
         if (commute == null)
@@ -69,7 +71,7 @@ public class CommuteService
     }
 
     // Deletes with a single SQL statement. Returns false when nothing was deleted.
-    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var deletedRows = await _db.Commutes.Where(i => i.Id == id).ExecuteDeleteAsync(cancellationToken);
         return deletedRows > 0;

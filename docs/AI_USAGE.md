@@ -95,6 +95,27 @@ The developer wrote the worker endpoints and the API integration. Claude assiste
 - Claude first said an extra filter for impossible delays was needed; the existing "usable label" rule already excluded them.
 - The architecture document described a `/predict` contract where the API computed the features; Claude changed it so the worker builds them in one place.
 
+## Milestone 6: frontend (November 2026)
+
+The developer chose the look, decided how commutes are owned and shared, and typed and ran the application code. Claude assisted with testing and with implementation suggestions.
+
+**What Claude did**
+
+- Design: produced three visual directions as HTML mocks, then the remaining screens and states in the chosen one (`docs/design/`).
+- Testing: wrote the tests first for every step, in the API (GUID ids, the list by ids, the stop lookup) and in the frontend (API client, formatting, form validation, the id list, share links, and each component and page against a fake `fetch`).
+- Implementation suggestions (API functions, hooks, components, pages).
+- Styling: wrote the CSS from the chosen mock, including the design tokens, a dark colour set and the transitions.
+- Setup: TanStack Query and the test helpers; ran the app against the real API in a headless browser.
+
+**What had to be corrected**
+
+- Claude's first design kept commutes shared by all visitors. It was replaced by random GUID ids, a list endpoint that only answers for given ids, and a per-browser list with a share link.
+- Claude built the commute tiles without the stop's name, because the API could not look a stop up by its id. A `GET /api/stops/{stopId}` endpoint was added and the tiles and the edit form now name the stop.
+- The mock's model card said "from two days of data". The API's model card does not carry the data window, so that sentence was left out of the app.
+- Stop results first vanished while the next search loaded, and the Departures tab forgot its search on a tab switch. Both were changed: previous results stay until new ones arrive, and the search is kept above the pages.
+- One of Claude's tests assumed the order in which requests are sent, and failed when a second request was added. It now checks that the request was made.
+- Claude's headless-browser check covered one screen at 360 px and one colour scheme in full; the other screens were checked by hand.
+
 ## Template for later milestones
 
 ```

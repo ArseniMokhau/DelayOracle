@@ -30,7 +30,7 @@ public class CommutesEndpointTests : IDisposable
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var created = await response.Content.ReadFromJsonAsync<CommuteResponse>();
         Assert.NotNull(created);
-        Assert.True(created.Id > 0);
+        Assert.NotEqual(Guid.Empty, created.Id);
         Assert.Equal("Home to work", created.Name);
         Assert.Equal(1234, created.StopId);
         Assert.Equal("8", created.RouteShortName);
@@ -51,14 +51,59 @@ public class CommutesEndpointTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAll_ReturnsCreatedCommutes()
+    public async Task Post_EveryCommuteGetsItsOwnId()
+    {
+        var first = await CreateCommuteAsync();
+        var second = await CreateCommuteAsync();
+
+        Assert.NotEqual(first.Id, second.Id);
+    }
+
+    [Fact]
+    public async Task GetByIds_ReturnsOnlyTheRequestedCommutesOldestFirst()
+    {
+        var first = await CreateCommuteAsync();
+        await CreateCommuteAsync();
+        var third = await CreateCommuteAsync();
+
+        var commutes = await _client.GetFromJsonAsync<List<CommuteResponse>>(
+            $"/api/commutes?ids={third.Id}&ids={first.Id}");
+
+        Assert.NotNull(commutes);
+        Assert.Equal([first, third], commutes);
+    }
+
+    [Fact]
+    public async Task GetByIds_UnknownIdIsLeftOut()
     {
         var created = await CreateCommuteAsync();
+
+        var commutes = await _client.GetFromJsonAsync<List<CommuteResponse>>(
+            $"/api/commutes?ids={created.Id}&ids={Guid.NewGuid()}");
+
+        Assert.NotNull(commutes);
+        Assert.Equal([created], commutes);
+    }
+
+    [Fact]
+    public async Task Get_WithoutIds_ReturnsAnEmptyList()
+    {
+        // The id is the only key to a commute, so the API never lists commutes nobody asked for.
+        await CreateCommuteAsync();
 
         var commutes = await _client.GetFromJsonAsync<List<CommuteResponse>>("/api/commutes");
 
         Assert.NotNull(commutes);
-        Assert.Equal([created], commutes);
+        Assert.Empty(commutes);
+    }
+
+    [Fact]
+    public async Task GetByIds_MalformedId_Returns400()
+    {
+        var response = await _client.GetAsync("/api/commutes?ids=not-a-guid");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
     }
 
     [Fact]
@@ -74,6 +119,14 @@ public class CommutesEndpointTests : IDisposable
 
     [Fact]
     public async Task GetById_UnknownId_Returns404()
+    {
+        var response = await _client.GetAsync($"/api/commutes/{Guid.NewGuid()}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetById_IdThatIsNotAGuid_Returns404()
     {
         var response = await _client.GetAsync("/api/commutes/999");
 
@@ -119,7 +172,7 @@ public class CommutesEndpointTests : IDisposable
     [Fact]
     public async Task Put_UnknownId_Returns404()
     {
-        var response = await _client.PutAsJsonAsync("/api/commutes/999", ValidRequest);
+        var response = await _client.PutAsJsonAsync($"/api/commutes/{Guid.NewGuid()}", ValidRequest);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -150,7 +203,7 @@ public class CommutesEndpointTests : IDisposable
     [Fact]
     public async Task Delete_UnknownId_Returns404()
     {
-        var response = await _client.DeleteAsync("/api/commutes/999");
+        var response = await _client.DeleteAsync($"/api/commutes/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }

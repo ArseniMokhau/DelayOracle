@@ -4,7 +4,7 @@ namespace DelayOracle.Api.Models;
 // This is the database entity; the API exposes it as CommuteResponse.
 public class Commute
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public required string Name { get; set; }
     public int StopId { get; set; }
     // Null means any line from this stop.

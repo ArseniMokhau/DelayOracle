@@ -56,8 +56,9 @@ Base path `/api`. JSON is camelCase. Errors are ProblemDetails.
 | Method and path | Purpose | Success | Errors |
 |---|---|---|---|
 | `GET /stops?query=` | Search stops by name (at most 20 results) | 200 | 400 |
+| `GET /stops/{stopId}` | Read one stop | 200 | 404, 503 |
 | `GET /stops/{stopId}/departures` | Live departures with a predicted delay | 200 | 503 |
-| `GET /commutes` | List commutes | 200 | |
+| `GET /commutes?ids=…&ids=…` | List the commutes with these ids, oldest first | 200 | 400 |
 | `POST /commutes` | Create a commute | 201 + `Location` | 400 |
 | `GET /commutes/{id}` | Read a commute | 200 | 404 |
 | `PUT /commutes/{id}` | Replace a commute | 200 | 400, 404 |
@@ -72,11 +73,11 @@ Departures request flow: the API fetches departures from ZTM, sends the ones wit
 
 Failure behaviour: worker unavailable gives a normal response with `source: "fallback"`; ZTM unavailable gives 503; invalid input gives 400 with field errors; unexpected errors give a 500 ProblemDetails without a stack trace.
 
-There is no authentication. Commutes are shared by all visitors.
+There is no authentication. A commute's id is a random GUID and is the only key to it: the API never lists commutes that were not asked for by id, and unknown ids are left out of the list. The browser remembers the ids of its own commutes, so each visitor sees a personal list. Anyone who is given an id can read, change and delete that commute.
 
 ## Data model
 
-`Commute`: `Id`, `Name` (required, at most 60 characters), `StopId` (required, positive), `RouteShortName` (optional, at most 8 characters), `WalkMinutes` (0 to 60), `CreatedAt` (UTC).
+`Commute`: `Id` (GUID, generated on creation), `Name` (required, at most 60 characters), `StopId` (required, positive), `RouteShortName` (optional, at most 8 characters), `WalkMinutes` (0 to 60), `CreatedAt` (UTC).
 
 The stop list is loaded from ZTM once and kept in memory.
 
@@ -132,16 +133,18 @@ Weekday and weather (rain, temperature from Open-Meteo) were planned as features
 Two tabs.
 
 - **Departures:** stop search; live departures with scheduled time, predicted time, a delay badge (text, not colour alone) and the prediction source; a card with the model and baseline MAE.
-- **My commutes:** a list of commutes, each with its live answer from `/advice` (refreshed every 30 seconds); a form to create and edit with the validation rules above; delete with confirmation.
+- **My commutes:** a list of commutes, each with its stop name and its live answer from `/advice` (refreshed every 30 seconds); a form to create and edit with the validation rules above, which offers the lines currently leaving the chosen stop; delete with confirmation.
 
-Every view has loading, empty and error states. All requests go through `src/api/`; the API address comes from `VITE_API_URL`.
+The browser keeps the ids of its commutes in `localStorage` and asks the API for exactly those. A share link carries the ids in the URL hash (`#commutes=<id>,<id>`); opening it adds them to that browser's list. Ids the API no longer knows are dropped from the list.
+
+Every view has loading, empty and error states. All requests go through `src/api/`; the API address comes from `VITE_API_URL`. Pure logic (formatting, form validation, the id list, share links) lives in `src/lib/` and is unit tested; colours are design tokens in `src/styles/tokens.css` with a light and a dark set.
 
 ## Testing
 
 - Backend unit: `AdviceCalculator`; the worker-unavailable fallback.
 - Backend integration: commutes endpoints through HTTP with in-memory SQLite.
 - Worker: feature building; `/predict` response shape.
-- Frontend: form validation (Vitest).
+- Frontend (Vitest, Testing Library): form validation, formatting, the id list and share links as unit tests; every component and page against a fake `fetch`, including the loading, empty and error states.
 
 ## Deployment
 

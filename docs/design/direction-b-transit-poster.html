@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DelayOracle: transit poster direction (design mock)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&display=swap">
+<style>
+body{margin:0}
+a{color:#1E3BFF}a:hover{color:#0B0B0B}
+</style>
+</head>
+<body>
+<!-- Static design mock with sample data. Not part of the application. -->
+<div style="container-type: inline-size; background: #FFFFFF; color: #0B0B0B; font-family: 'Archivo', system-ui, sans-serif; min-height: 100vh">
+<div style="max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: clamp(16px, 4cqi, 48px); display: flex; flex-direction: column; gap: clamp(22px, 3.2cqi, 40px)">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 50%; background: #1E3BFF; border: 3px solid #0B0B0B; box-sizing: border-box"></span>
+<span style="font-weight: 900; font-size: 28px; letter-spacing: -0.02em">DelayOracle</span>
+</div>
+<nav aria-label="Sections" style="display: flex; gap: 10px">
+<button type="button" style="min-height: 46px; padding: 0 20px; border: 3px solid #0B0B0B; border-radius: 999px; background: #FFFFFF; color: #0B0B0B; font: 700 16px 'Archivo', sans-serif; cursor: pointer">Departures</button>
+<button type="button" aria-current="page" style="min-height: 46px; padding: 0 20px; border: 3px solid #0B0B0B; border-radius: 999px; background: #0B0B0B; color: #FFFFFF; font: 700 16px 'Archivo', sans-serif; cursor: pointer">My commutes</button>
+</nav>
+</header>
+
+<section aria-label="Next commute" style="position: relative; display: flex; flex-wrap: wrap; align-items: stretch; gap: clamp(16px, 3cqi, 40px); padding: clamp(22px, 4cqi, 52px); background: #1E3BFF; color: #FFFFFF; border: 3px solid #0B0B0B; border-radius: 28px; box-shadow: 10px 10px 0 #0B0B0B">
+<div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<span style="align-self: flex-start; padding: 8px 16px; background: #E6FF3D; color: #0B0B0B; border: 3px solid #0B0B0B; border-radius: 10px; font-weight: 900; font-size: clamp(18px, 2.4cqi, 26px); letter-spacing: 0.04em; transform: rotate(-4deg)">LEAVE IN</span>
+<div style="display: flex; align-items: baseline; gap: clamp(8px, 1.6cqi, 20px)">
+<span style="font-weight: 900; font-size: clamp(170px, 34cqi, 380px); line-height: 0.82; letter-spacing: -0.06em">6</span>
+<span style="font-weight: 900; font-size: clamp(44px, 8cqi, 96px); line-height: 1; letter-spacing: -0.03em">min</span>
+</div>
+<div style="margin-top: 14px; font-weight: 700; font-size: clamp(18px, 2.2cqi, 24px)">Morning to work. Out of the door by 17:20.</div>
+</div>
+<div style="flex: 1 1 300px; box-sizing: border-box; align-self: center; padding: 24px; background: #FFFFFF; color: #0B0B0B; border: 3px solid #0B0B0B; border-radius: 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 14px">
+<span style="min-width: 64px; height: 64px; box-sizing: border-box; padding: 0 10px; display: flex; align-items: center; justify-content: center; background: #0B0B0B; color: #FFFFFF; border-radius: 999px; font-weight: 900; font-size: 24px">154</span>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-weight: 900; font-size: 22px">Jana z Kolna</span>
+<span style="font-weight: 500; font-size: 15px; color: #45454A">from Brama Wyżynna, 5 min walk</span>
+</div>
+</div>
+<div style="display: flex; gap: 12px">
+<div style="flex: 1 1 0; padding: 12px 14px; border: 3px solid #0B0B0B; border-radius: 14px"><div style="font-weight: 700; font-size: 13px; letter-spacing: 0.08em; color: #45454A">SCHEDULED</div><div style="font-weight: 900; font-size: 30px">17:25</div></div>
+<div style="flex: 1 1 0; padding: 12px 14px; border: 3px solid #0B0B0B; border-radius: 14px; background: #E6FF3D"><div style="font-weight: 700; font-size: 13px; letter-spacing: 0.08em">PREDICTED</div><div style="font-weight: 900; font-size: 30px">17:26</div></div>
+</div>
+<div style="font-weight: 700; font-size: 15px">1 min late · predicted by the model</div>
+</div>
+</section>
+
+<section aria-label="Other commutes" style="display: flex; flex-wrap: wrap; gap: 20px">
+<article style="flex: 1 1 260px; box-sizing: border-box; padding: 22px; background: #E6FF3D; border: 3px solid #0B0B0B; border-radius: 20px; box-shadow: 6px 6px 0 #0B0B0B; display: flex; flex-direction: column; gap: 8px">
+<div style="font-weight: 700; font-size: 14px; letter-spacing: 0.06em">GYM · LINE 8 · 3 MIN WALK</div>
+<div style="font-weight: 900; font-size: 44px; line-height: 1; letter-spacing: -0.03em">Leave now</div>
+<div style="font-weight: 500; font-size: 15px">Tram predicted 17:22, on time</div>
+</article>
+<article style="flex: 1 1 260px; box-sizing: border-box; padding: 22px; background: #EDEDED; border: 3px solid #0B0B0B; border-radius: 20px; box-shadow: 6px 6px 0 #0B0B0B; display: flex; flex-direction: column; gap: 8px">
+<div style="font-weight: 700; font-size: 14px; letter-spacing: 0.06em">PARENTS · LINE 199 · 9 MIN WALK</div>
+<div style="font-weight: 900; font-size: 44px; line-height: 1; letter-spacing: -0.03em">No departure</div>
+<div style="font-weight: 500; font-size: 15px">Nothing you can still catch right now</div>
+</article>
+<button type="button" style="flex: 1 1 260px; min-height: 130px; box-sizing: border-box; padding: 22px; background: #FFFFFF; border: 3px dashed #0B0B0B; border-radius: 20px; color: #0B0B0B; font: 900 24px 'Archivo', sans-serif; cursor: pointer">+ New commute</button>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<section aria-label="Departures" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<h2 style="margin: 0; font-weight: 900; font-size: clamp(34px, 5cqi, 56px); line-height: 1; letter-spacing: -0.04em">Departures</h2>
+<div style="display: flex; flex-direction: column; gap: 6px; flex: 0 1 300px">
+<label for="b-stop" style="font-weight: 700; font-size: 13px; letter-spacing: 0.08em">STOP</label>
+<input id="b-stop" type="search" value="Brama Wyżynna" style="min-height: 48px; box-sizing: border-box; width: 100%; padding: 0 16px; background: #FFFFFF; border: 3px solid #0B0B0B; border-radius: 999px; color: #0B0B0B; font: 700 16px 'Archivo', sans-serif">
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 18px; background: #FFFFFF; border: 3px solid #0B0B0B; border-radius: 18px">
+<span style="min-width: 52px; height: 52px; box-sizing: border-box; padding: 0 8px; display: flex; align-items: center; justify-content: center; background: #0B0B0B; color: #FFFFFF; border-radius: 999px; font-weight: 900; font-size: 20px">6</span>
+<span style="flex: 1 1 170px; font-weight: 700; font-size: 18px">Łostowice Świętokrzyska</span>
+<span style="font-weight: 500; font-size: 16px; color: #45454A">17:18</span>
+<span aria-hidden="true">→</span>
+<span style="font-weight: 900; font-size: 28px; letter-spacing: -0.02em">17:21</span>
+<span style="min-width: 112px; box-sizing: border-box; padding: 6px 12px; text-align: center; background: #FF8A70; border: 3px solid #0B0B0B; border-radius: 999px; font-weight: 700; font-size: 14px">3 min late</span>
+<span style="min-width: 74px; font-weight: 700; font-size: 12px; letter-spacing: 0.1em; color: #45454A">MODEL</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 18px; background: #FFFFFF; border: 3px solid #0B0B0B; border-radius: 18px">
+<span style="min-width: 52px; height: 52px; box-sizing: border-box; padding: 0 8px; display: flex; align-items: center; justify-content: center; background: #0B0B0B; color: #FFFFFF; border-radius: 999px; font-weight: 900; font-size: 20px">8</span>
+<span style="flex: 1 1 170px; font-weight: 700; font-size: 18px">Stogi Plaża</span>
+<span style="font-weight: 500; font-size: 16px; color: #45454A">17:22</span>
+<span aria-hidden="true">→</span>
+<span style="font-weight: 900; font-size: 28px; letter-spacing: -0.02em">17:22</span>
+<span style="min-width: 112px; box-sizing: border-box; padding: 6px 12px; text-align: center; background: #E6FF3D; border: 3px solid #0B0B0B; border-radius: 999px; font-weight: 700; font-size: 14px">On time</span>
+<span style="min-width: 74px; font-weight: 700; font-size: 12px; letter-spacing: 0.1em; color: #45454A">MODEL</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 18px; background: #FFFFFF; border: 3px solid #0B0B0B; border-radius: 18px">
+<span style="min-width: 52px; height: 52px; box-sizing: border-box; padding: 0 8px; display: flex; align-items: center; justify-content: center; background: #0B0B0B; color: #FFFFFF; border-radius: 999px; font-weight: 900; font-size: 20px">154</span>
+<span style="flex: 1 1 170px; font-weight: 700; font-size: 18px">Jana z Kolna</span>
+<span style="font-weight: 500; font-size: 16px; color: #45454A">17:25</span>
+<span aria-hidden="true">→</span>
+<span style="font-weight: 900; font-size: 28px; letter-spacing: -0.02em">17:26</span>
+<span style="min-width: 112px; box-sizing: border-box; padding: 6px 12px; text-align: center; background: #FF8A70; border: 3px solid #0B0B0B; border-radius: 999px; font-weight: 700; font-size: 14px">1 min late</span>
+<span style="min-width: 74px; font-weight: 700; font-size: 12px; letter-spacing: 0.1em; color: #45454A">MODEL</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 18px; background: #FFFFFF; border: 3px solid #0B0B0B; border-radius: 18px">
+<span style="min-width: 52px; height: 52px; box-sizing: border-box; padding: 0 8px; display: flex; align-items: center; justify-content: center; background: #0B0B0B; color: #FFFFFF; border-radius: 999px; font-weight: 900; font-size: 20px">3</span>
+<span style="flex: 1 1 170px; font-weight: 700; font-size: 18px">Chełm Witosa</span>
+<span style="font-weight: 500; font-size: 16px; color: #45454A">17:31</span>
+<span aria-hidden="true">→</span>
+<span style="font-weight: 900; font-size: 28px; letter-spacing: -0.02em">17:30</span>
+<span style="min-width: 112px; box-sizing: border-box; padding: 6px 12px; text-align: center; background: #BFD0FF; border: 3px solid #0B0B0B; border-radius: 999px; font-weight: 700; font-size: 14px">1 min early</span>
+<span style="min-width: 74px; font-weight: 700; font-size: 12px; letter-spacing: 0.1em; color: #45454A">ZTM LIVE</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 18px; background: #FFFFFF; border: 3px solid #0B0B0B; border-radius: 18px">
+<span style="min-width: 52px; height: 52px; box-sizing: border-box; padding: 0 8px; display: flex; align-items: center; justify-content: center; background: #0B0B0B; color: #FFFFFF; border-radius: 999px; font-weight: 900; font-size: 20px">111</span>
+<span style="flex: 1 1 170px; font-weight: 700; font-size: 18px">Gościnna</span>
+<span style="font-weight: 500; font-size: 16px; color: #45454A">17:40</span>
+<span aria-hidden="true">→</span>
+<span style="font-weight: 900; font-size: 28px; letter-spacing: -0.02em">17:40</span>
+<span style="min-width: 112px; box-sizing: border-box; padding: 6px 12px; text-align: center; background: #EDEDED; border: 3px solid #0B0B0B; border-radius: 999px; font-weight: 700; font-size: 14px">No live data</span>
+<span style="min-width: 74px; font-weight: 700; font-size: 12px; letter-spacing: 0.1em; color: #45454A">TIMETABLE</span>
+</div>
+</section>
+
+<section aria-label="Prediction model" style="flex: 1 1 280px; box-sizing: border-box; padding: 26px; background: #0B0B0B; color: #FFFFFF; border-radius: 24px; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-weight: 900; font-size: 30px; letter-spacing: -0.03em">The model</h2>
+<div style="display: flex; align-items: baseline; gap: 10px"><span style="font-weight: 900; font-size: 72px; line-height: 0.9; letter-spacing: -0.04em; color: #E6FF3D">113</span><span style="font-weight: 700; font-size: 18px">s average error</span></div>
+<div aria-hidden="true" style="height: 16px; width: 71%; background: #E6FF3D; border-radius: 999px"></div>
+<div style="display: flex; align-items: baseline; gap: 10px"><span style="font-weight: 900; font-size: 40px; line-height: 0.9; letter-spacing: -0.03em">159</span><span style="font-weight: 700; font-size: 16px">s using ZTM's delay as is</span></div>
+<div aria-hidden="true" style="height: 16px; width: 100%; background: #8A8A90; border-radius: 999px"></div>
+<p style="margin: 6px 0 0; font-weight: 500; font-size: 14px; line-height: 1.5; color: #D6D6DA">Measured on the test departures; shorter is better. Trained on 22,488 departures from two days of data, so weekly patterns are not learned yet.</p>
+</section>
+</div>
+
+</div>
+</div>
+</body>
+</html>

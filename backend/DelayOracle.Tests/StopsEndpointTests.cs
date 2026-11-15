@@ -79,6 +79,34 @@ public class StopsEndpointTests : IDisposable
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
     }
 
+    [Fact]
+    public async Task GetById_KnownStop_ReturnsTheStop()
+    {
+        var stop = await _factory.CreateClient().GetFromJsonAsync<StopResponse>("/api/stops/1028");
+
+        Assert.Equal(new StopResponse(1028, "Brama Wyżynna", "05", "Gdańsk"), stop);
+    }
+
+    [Fact]
+    public async Task GetById_UnknownStop_Returns404ProblemDetails()
+    {
+        var response = await _factory.CreateClient().GetAsync("/api/stops/999999");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
+    public async Task GetById_WhenZtmIsDown_Returns503ProblemDetails()
+    {
+        _factory.ZtmHandler = FakeHttpHandler.Returning("down", HttpStatusCode.InternalServerError);
+
+        var response = await _factory.CreateClient().GetAsync("/api/stops/1028");
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
     private async Task<List<StopResponse>> SearchAsync(string query)
     {
         var url = $"/api/stops?query={Uri.EscapeDataString(query)}";
