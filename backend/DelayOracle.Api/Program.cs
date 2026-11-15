@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ZtmUnavailableExceptionHandler>();
+builder.Services.AddExceptionHandler<WorkerUnavailableExceptionHandler>();
 builder.Services.AddMemoryCache();
 builder.Services.AddOpenApi();
 // The clock is a service, so tests can replace it with a fixed time.
