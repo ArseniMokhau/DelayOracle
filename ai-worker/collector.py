@@ -1,4 +1,8 @@
-"""DelayOracle data collector: one row per departure, updated on every sighting.
+"""DelayOracle data collector.
+
+Two tables are filled on every poll:
+  departures  one row per departure, with its first and its last sighting
+  sightings   one row per sighting, so the delay can be followed all the way to the departure
 
 Usage:
   python collector.py                  # collect (first run scans stops and selects 120)
@@ -32,6 +36,11 @@ CREATE TABLE IF NOT EXISTS departures (
     sightings INTEGER NOT NULL DEFAULT 1,
     PRIMARY KEY (stop_id, trip, theoretical)
 );
+CREATE TABLE IF NOT EXISTS sightings (
+    stop_id INTEGER NOT NULL, trip INTEGER NOT NULL, theoretical TEXT NOT NULL,
+    seen_at TEXT NOT NULL, delay_s INTEGER, estimated TEXT,
+    PRIMARY KEY (stop_id, trip, theoretical, seen_at)
+);
 CREATE TABLE IF NOT EXISTS stops (
     stop_id INTEGER PRIMARY KEY, name TEXT, selected INTEGER NOT NULL DEFAULT 0
 );
@@ -49,6 +58,11 @@ ON CONFLICT(stop_id, trip, theoretical) DO UPDATE SET
     last_delay_s = excluded.last_delay_s,
     last_estimated = excluded.last_estimated,
     sightings = sightings + 1
+"""
+
+INSERT_SIGHTING = """
+INSERT OR IGNORE INTO sightings (stop_id, trip, theoretical, seen_at, delay_s, estimated)
+VALUES (?,?,?,?,?,?)
 """
 
 
@@ -131,6 +145,10 @@ def poll_once(con, stop_ids, pause: float):
                 stop_id, r["trip"], r["theoreticalTime"], str(r.get("routeId")), r.get("headsign"),
                 now, r.get("delayInSeconds"), now, r.get("delayInSeconds"), r.get("estimatedTime"),
             ))
+            con.execute(INSERT_SIGHTING, (
+                stop_id, r["trip"], r["theoreticalTime"], now,
+                r.get("delayInSeconds"), r.get("estimatedTime"),
+            ))
         time.sleep(pause)
     con.execute("INSERT INTO poll_log VALUES (?,?,?,?)", (utc_now(), ok, failed, seen))
     con.commit()
@@ -150,6 +168,7 @@ def report(con):
     poll_range = con.execute("SELECT MIN(polled_at), MAX(polled_at) FROM poll_log").fetchone()
     print(f"first / last poll:   {poll_range}")
     print(f"departures stored:   {total}")
+    print(f"sightings stored:    {one('SELECT COUNT(*) FROM sightings')}")
     print(f"with good label:     {good}  <- this is the usable training set size")
     days = one("SELECT COUNT(DISTINCT date(theoretical, 'localtime')) FROM departures")
     print(f"distinct days:       {days}")
