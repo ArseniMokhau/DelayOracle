@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DelayOracle: departure board direction (design mock)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+a{color:#FFB400}a:hover{color:#FFD166}
+@keyframes do-pulse{0%,100%{opacity:1}50%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important}}
+</style>
+</head>
+<body>
+<!-- Static design mock with sample data. Not part of the application. -->
+<div style="container-type: inline-size; background: #0A0A0B; color: #F4F1E8; font-family: 'Space Grotesk', system-ui, sans-serif; min-height: 100vh">
+<div style="max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: clamp(16px, 4cqi, 48px); display: flex; flex-direction: column; gap: clamp(20px, 3cqi, 36px)">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 50%; background: #FFB400; box-shadow: 0 0 16px #FFB400; animation: do-pulse 1.6s ease-in-out infinite"></span>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 20px; letter-spacing: 0.14em">DELAY·ORACLE</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #A3A199; letter-spacing: 0.08em">GDAŃSK 17:14</span>
+</div>
+<nav aria-label="Sections" style="display: flex; gap: 8px">
+<button type="button" style="min-height: 44px; padding: 0 18px; border: 1px solid #2A2A2E; border-radius: 8px; background: transparent; color: #A3A199; font: 500 15px 'Space Grotesk', sans-serif; cursor: pointer">Departures</button>
+<button type="button" aria-current="page" style="min-height: 44px; padding: 0 18px; border: 1px solid #FFB400; border-radius: 8px; background: #FFB400; color: #0A0A0B; font: 700 15px 'Space Grotesk', sans-serif; cursor: pointer">My commutes</button>
+</nav>
+</header>
+
+<section aria-label="Next commute" style="display: flex; flex-wrap: wrap; gap: clamp(20px, 3cqi, 40px); padding: clamp(20px, 3.5cqi, 44px); background: #141416; border: 1px solid #2A2A2E; border-radius: 20px">
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 18px; min-width: 0">
+<div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.16em; color: #A3A199">MY COMMUTE · MORNING TO WORK</div>
+<div style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(20px, 3cqi, 32px); letter-spacing: 0.2em; color: #F4F1E8">LEAVE IN</div>
+<div style="display: flex; align-items: flex-end; gap: clamp(8px, 1.2cqi, 14px)">
+<span style="width: clamp(84px, 17cqi, 190px); height: clamp(112px, 23cqi, 250px); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(88px, 18cqi, 200px); line-height: 1; color: #FFB400; border-radius: 12px; background: linear-gradient(180deg, #1E1E22 0, #1E1E22 49.4%, #050506 49.4%, #050506 50.6%, #17171A 50.6%, #17171A 100%); box-shadow: inset 0 1px 0 #34343A">0</span>
+<span style="width: clamp(84px, 17cqi, 190px); height: clamp(112px, 23cqi, 250px); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(88px, 18cqi, 200px); line-height: 1; color: #FFB400; border-radius: 12px; background: linear-gradient(180deg, #1E1E22 0, #1E1E22 49.4%, #050506 49.4%, #050506 50.6%, #17171A 50.6%, #17171A 100%); box-shadow: inset 0 1px 0 #34343A">6</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(24px, 4cqi, 44px); letter-spacing: 0.12em; color: #F4F1E8; padding-bottom: 8px">MIN</span>
+</div>
+<div style="font-size: 18px; color: #D8D4C8">Out of the door by <strong style="color: #FFB400">17:20</strong>. Five minutes on foot to Brama Wyżynna.</div>
+</div>
+<dl style="flex: 1 1 280px; margin: 0; display: flex; flex-direction: column; justify-content: center; gap: 0; font-family: 'JetBrains Mono', monospace; font-size: 15px">
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px dashed #2A2A2E"><dt style="color: #A3A199">LINE</dt><dd style="margin: 0; text-align: right">154 → Jana z Kolna</dd></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px dashed #2A2A2E"><dt style="color: #A3A199">SCHEDULED</dt><dd style="margin: 0">17:25</dd></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px dashed #2A2A2E"><dt style="color: #A3A199">PREDICTED</dt><dd style="margin: 0; color: #FFB400; font-weight: 700">17:26</dd></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px dashed #2A2A2E"><dt style="color: #A3A199">DELAY</dt><dd style="margin: 0">1 min late</dd></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 14px 0"><dt style="color: #A3A199">SOURCE</dt><dd style="margin: 0">Model prediction</dd></div>
+</dl>
+</section>
+
+<section aria-label="Other commutes" style="display: flex; flex-wrap: wrap; gap: 16px">
+<article style="flex: 1 1 260px; box-sizing: border-box; padding: 22px; background: #141416; border: 1px solid #2A2A2E; border-radius: 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.16em; color: #A3A199">GYM · LINE 8 · 3 MIN WALK</div>
+<div style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 34px; color: #6BE594">LEAVE NOW</div>
+<div style="font-size: 15px; color: #D8D4C8">Tram predicted 17:22, on time</div>
+</article>
+<article style="flex: 1 1 260px; box-sizing: border-box; padding: 22px; background: #141416; border: 1px solid #2A2A2E; border-radius: 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.16em; color: #A3A199">PARENTS · LINE 199 · 9 MIN WALK</div>
+<div style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 34px; color: #A3A199">NO DEPARTURE</div>
+<div style="font-size: 15px; color: #D8D4C8">Nothing you can still catch right now</div>
+</article>
+<button type="button" style="flex: 1 1 260px; min-height: 120px; box-sizing: border-box; padding: 22px; background: transparent; border: 1px dashed #5A5A60; border-radius: 16px; color: #FFB400; font: 700 18px 'Space Grotesk', sans-serif; cursor: pointer">+ New commute</button>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section aria-label="Departures" style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: clamp(18px, 2.6cqi, 30px); background: #141416; border: 1px solid #2A2A2E; border-radius: 20px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 700">Departures</h2>
+<div style="display: flex; flex-direction: column; gap: 6px; flex: 0 1 300px">
+<label for="a-stop" style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.16em; color: #A3A199">STOP</label>
+<input id="a-stop" type="search" value="Brama Wyżynna" style="min-height: 44px; box-sizing: border-box; width: 100%; padding: 0 14px; background: #0A0A0B; border: 1px solid #5A5A60; border-radius: 8px; color: #F4F1E8; font: 500 16px 'Space Grotesk', sans-serif">
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 0; border-top: 1px solid #2A2A2E">
+<span style="min-width: 56px; box-sizing: border-box; padding: 6px 8px; text-align: center; background: #FFB400; color: #0A0A0B; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 18px">6</span>
+<span style="flex: 1 1 170px; font-size: 17px; font-weight: 500">Łostowice Świętokrzyska</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #A3A199">17:18</span>
+<span aria-hidden="true" style="color: #5A5A60">→</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 22px; color: #FFB400">17:21</span>
+<span style="min-width: 104px; box-sizing: border-box; padding: 5px 10px; text-align: center; border: 1px solid #FF9B7A; border-radius: 999px; color: #FF9B7A; font-family: 'JetBrains Mono', monospace; font-size: 13px">3 min late</span>
+<span style="min-width: 76px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #A3A199">MODEL</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 0; border-top: 1px solid #2A2A2E">
+<span style="min-width: 56px; box-sizing: border-box; padding: 6px 8px; text-align: center; background: #FFB400; color: #0A0A0B; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 18px">8</span>
+<span style="flex: 1 1 170px; font-size: 17px; font-weight: 500">Stogi Plaża</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #A3A199">17:22</span>
+<span aria-hidden="true" style="color: #5A5A60">→</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 22px; color: #FFB400">17:22</span>
+<span style="min-width: 104px; box-sizing: border-box; padding: 5px 10px; text-align: center; border: 1px solid #6BE594; border-radius: 999px; color: #6BE594; font-family: 'JetBrains Mono', monospace; font-size: 13px">On time</span>
+<span style="min-width: 76px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #A3A199">MODEL</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 0; border-top: 1px solid #2A2A2E">
+<span style="min-width: 56px; box-sizing: border-box; padding: 6px 8px; text-align: center; background: #FFB400; color: #0A0A0B; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 18px">154</span>
+<span style="flex: 1 1 170px; font-size: 17px; font-weight: 500">Jana z Kolna</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #A3A199">17:25</span>
+<span aria-hidden="true" style="color: #5A5A60">→</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 22px; color: #FFB400">17:26</span>
+<span style="min-width: 104px; box-sizing: border-box; padding: 5px 10px; text-align: center; border: 1px solid #FF9B7A; border-radius: 999px; color: #FF9B7A; font-family: 'JetBrains Mono', monospace; font-size: 13px">1 min late</span>
+<span style="min-width: 76px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #A3A199">MODEL</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 0; border-top: 1px solid #2A2A2E">
+<span style="min-width: 56px; box-sizing: border-box; padding: 6px 8px; text-align: center; background: #FFB400; color: #0A0A0B; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 18px">3</span>
+<span style="flex: 1 1 170px; font-size: 17px; font-weight: 500">Chełm Witosa</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #A3A199">17:31</span>
+<span aria-hidden="true" style="color: #5A5A60">→</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 22px; color: #FFB400">17:30</span>
+<span style="min-width: 104px; box-sizing: border-box; padding: 5px 10px; text-align: center; border: 1px solid #8FD3FF; border-radius: 999px; color: #8FD3FF; font-family: 'JetBrains Mono', monospace; font-size: 13px">1 min early</span>
+<span style="min-width: 76px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #A3A199">ZTM LIVE</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 0; border-top: 1px solid #2A2A2E">
+<span style="min-width: 56px; box-sizing: border-box; padding: 6px 8px; text-align: center; background: #FFB400; color: #0A0A0B; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 18px">111</span>
+<span style="flex: 1 1 170px; font-size: 17px; font-weight: 500">Gościnna</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #A3A199">17:40</span>
+<span aria-hidden="true" style="color: #5A5A60">→</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 22px; color: #FFB400">17:40</span>
+<span style="min-width: 104px; box-sizing: border-box; padding: 5px 10px; text-align: center; border: 1px solid #A3A199; border-radius: 999px; color: #A3A199; font-family: 'JetBrains Mono', monospace; font-size: 13px">No live data</span>
+<span style="min-width: 76px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #A3A199">TIMETABLE</span>
+</div>
+</section>
+
+<section aria-label="Prediction model" style="flex: 1 1 280px; box-sizing: border-box; padding: clamp(18px, 2.6cqi, 30px); background: #141416; border: 1px solid #2A2A2E; border-radius: 20px; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 700">The model</h2>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 14px"><span>MODEL</span><span style="color: #FFB400; font-weight: 700">113.0 s</span></div>
+<div aria-hidden="true" style="height: 14px; width: 71%; background: #FFB400; border-radius: 4px"></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 14px"><span>ZTM DELAY AS IS</span><span style="font-weight: 700">159.2 s</span></div>
+<div aria-hidden="true" style="height: 14px; width: 100%; background: #5A5A60; border-radius: 4px"></div>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #D8D4C8">Average error on the test departures. Shorter is better.</p>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #A3A199">Trained on 22,488 departures from two days of data, so weekly patterns are not learned yet.</p>
+</section>
+</div>
+
+</div>
+</div>
+</body>
+</html>
