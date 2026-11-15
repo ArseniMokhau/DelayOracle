@@ -2,9 +2,9 @@
 
 **Language:** [Polski](README.md) · English
 
-[![Walkthrough recording of the app: click to play](docs/walkthrough.jpg)](docs/walkthrough.mp4)
+![Walkthrough recording of the app: live departures, then adding, editing, sharing and deleting a commute](docs/Demo.gif)
 
-**Demo:** [a walkthrough recording of the app](docs/walkthrough.mp4) (63 s, mp4). Click the picture or the link to play it.
+**Demo:** the same walkthrough in better quality is in [docs/walkthrough.mp4](docs/walkthrough.mp4) (63 s).
 
 DelayOracle tells you when to leave home to catch public transport in Gdańsk. It combines live ZTM Gdańsk departures, a delay prediction from a trained model, and your walking time to the stop.
 

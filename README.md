@@ -2,9 +2,9 @@
 
 **Język:** Polski · [English](README.en.md)
 
-[![Nagranie działania aplikacji: kliknij, aby odtworzyć](docs/walkthrough.jpg)](docs/walkthrough.mp4)
+![Nagranie działania aplikacji: odjazdy na żywo, dodanie, edycja, udostępnienie i usunięcie dojazdu](docs/Demo.gif)
 
-**Demo:** [nagranie działania aplikacji](docs/walkthrough.mp4) (63 s, mp4). Kliknij obrazek lub link, aby je odtworzyć.
+**Demo:** to samo nagranie w lepszej jakości jest w pliku [docs/walkthrough.mp4](docs/walkthrough.mp4) (63 s).
 
 DelayOracle podpowiada, kiedy wyjść z domu, żeby zdążyć na komunikację miejską w Gdańsku. Łączy odjazdy na żywo z ZTM Gdańsk, prognozę opóźnienia z wytrenowanego modelu oraz czas dojścia na przystanek.
 
