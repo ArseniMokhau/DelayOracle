@@ -44,3 +44,14 @@ def load_model(path: str) -> tuple[DelayModel, torch.Tensor, torch.Tensor]:
     model.load_state_dict(saved["state_dict"])
     model.eval()
     return model, saved["mean"], saved["std"]
+
+
+def predict_delay_changes(
+    model: DelayModel, mean: torch.Tensor, std: torch.Tensor, feature_rows: list[list[float]]
+) -> list[float]:
+    """Predicted change of the delay, in seconds, for each row of features."""
+    if not feature_rows:
+        return []
+    features = torch.tensor(feature_rows, dtype=torch.float32)
+    with torch.inference_mode():
+        return model((features - mean) / std).tolist()
