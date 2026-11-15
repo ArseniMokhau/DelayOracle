@@ -206,3 +206,21 @@ test('a new form looks up no stop before one is picked', () => {
 
   expect(fetchMock).not.toHaveBeenCalled()
 })
+
+test('a field stops showing its mistake as soon as it is changed, and the others keep theirs', async () => {
+  stubApi({ '/departures': jsonResponse([]), '/api/stops?query=': jsonResponse([STOP]) })
+  renderWithQuery(<CommuteForm onSaved={() => {}} onCancel={() => {}} />)
+  await userEvent.click(screen.getByRole('button', { name: 'Save commute' }))
+  expect(screen.getByText('Enter a name')).toBeTruthy()
+  expect(screen.getByText('Pick a stop from the list')).toBeTruthy()
+
+  await userEvent.type(screen.getByLabelText('Name'), 'M')
+
+  expect(screen.queryByText('Enter a name')).toBeNull()
+  expect(screen.getByLabelText('Name').getAttribute('aria-invalid')).toBeNull()
+  expect(screen.getByText('Pick a stop from the list')).toBeTruthy()
+
+  await pickStop()
+
+  expect(screen.queryByText('Pick a stop from the list')).toBeNull()
+})

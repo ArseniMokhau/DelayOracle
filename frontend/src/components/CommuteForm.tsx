@@ -32,7 +32,7 @@ function CommuteForm({ commute, onSaved, onCancel }: CommuteFormProps) {
   // The stop picked in this form; null while an edited commute still has its old stop.
   const [pickedStop, setPickedStop] = useState<Stop | null>(null)
 
-    // An edited commute only knows the number of its stop; this finds the name for it.
+  // An edited commute only knows the number of its stop; this finds the name for it.
   const savedStop = useStop(pickedStop ? null : values.stopId)
   const shownStop = pickedStop ?? savedStop.data
 
@@ -62,9 +62,15 @@ function CommuteForm({ commute, onSaved, onCancel }: CommuteFormProps) {
     }
   }
 
+  // Changes one field and removes its error message: the old message described the old value.
+  function changeField<Field extends keyof CommuteFormValues>(field: Field, value: CommuteFormValues[Field]) {
+    setValues({ ...values, [field]: value })
+    setErrors({ ...errors, [field]: undefined })
+  }
+
   function pickStop(stop: Stop) {
     setPickedStop(stop)
-    setValues({ ...values, stopId: stop.id })
+    changeField('stopId', stop.id)
   }
 
   return (
@@ -85,7 +91,7 @@ function CommuteForm({ commute, onSaved, onCancel }: CommuteFormProps) {
             id="commute-name"
             className="input"
             value={values.name}
-            onChange={(event) => setValues({ ...values, name: event.target.value })}
+            onChange={(event) => changeField('name', event.target.value)}
             aria-invalid={errors.name ? true : undefined}
             aria-describedby={errors.name ? 'commute-name-error' : undefined}
           />
@@ -115,7 +121,7 @@ function CommuteForm({ commute, onSaved, onCancel }: CommuteFormProps) {
               id="commute-line"
               className="input"
               value={values.routeShortName}
-              onChange={(event) => setValues({ ...values, routeShortName: event.target.value })}
+              onChange={(event) => changeField('routeShortName', event.target.value)}
               aria-invalid={errors.routeShortName ? true : undefined}
               aria-describedby={errors.routeShortName ? 'commute-line-error' : 'commute-line-hint'}
             />
@@ -139,7 +145,7 @@ function CommuteForm({ commute, onSaved, onCancel }: CommuteFormProps) {
                     type="button"
                     className="line-chip"
                     aria-pressed={values.routeShortName.trim() === line}
-                    onClick={() => setValues({ ...values, routeShortName: line })}
+                    onClick={() => changeField('routeShortName', line)}
                   >
                     {line}
                   </button>
@@ -157,7 +163,7 @@ function CommuteForm({ commute, onSaved, onCancel }: CommuteFormProps) {
               className="input"
               inputMode="numeric"
               value={values.walkMinutes}
-              onChange={(event) => setValues({ ...values, walkMinutes: event.target.value })}
+              onChange={(event) => changeField('walkMinutes', event.target.value)}
               aria-invalid={errors.walkMinutes ? true : undefined}
               aria-describedby={errors.walkMinutes ? 'commute-walk-error' : undefined}
             />
