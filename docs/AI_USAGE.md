@@ -62,6 +62,21 @@ The developer wrote the implementation. Claude assisted with testing and with im
 
 - Claude's first set of tests missed a case: a `leaveBy` less than a minute in the past rounds to zero minutes and could be reported as "leave now". A test for it was added.
 
+## Milestone 4: live departures (November 2026)
+
+The developer wrote the implementation. Claude assisted with testing and with implementation suggestions.
+
+**What Claude did**
+
+- Testing: wrote a fake ZTM (`FakeHttpHandler`) with fixtures in the shape of the real responses, a replaceable clock in the test factory, and the tests for the ZTM client, stop search, departures and advice endpoints.
+- Setup: ZTM settings in configuration, the typed `HttpClient` registration, and the exception handler that turns a ZTM failure into a 503 ProblemDetails.
+- Ran the API against live ZTM for one real stop (search, departures, advice).
+
+**What had to be corrected**
+
+- One of Claude's stop search tests expected the wrong order for two stops with the same name; it was fixed before it was used.
+- Claude's Milestone 2 tests compared `createdAt` values in a way that ignores whether the time is marked as UTC, so they missed that the `Z` was lost when a commute was read back from SQLite. A test on the raw JSON was added and the bug fixed.
+
 ## Template for later milestones
 
 ```

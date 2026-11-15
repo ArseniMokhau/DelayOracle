@@ -1,6 +1,8 @@
+using DelayOracle.Api.Controllers;
 using DelayOracle.Api.Data;
 using DelayOracle.Api.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 const string CorsPolicy = "Frontend";
 
@@ -8,11 +10,25 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<ZtmUnavailableExceptionHandler>();
+builder.Services.AddMemoryCache();
 builder.Services.AddOpenApi();
+// The clock is a service, so tests can replace it with a fixed time.
+builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddScoped<CommuteService>();
+builder.Services.AddScoped<StopService>();
+builder.Services.AddScoped<DepartureService>();
+builder.Services.AddScoped<AdviceService>();
+
+builder.Services.Configure<ZtmOptions>(builder.Configuration.GetSection("Ztm"));
+builder.Services.AddHttpClient<ZtmClient>((services, client) =>
+{
+    var options = services.GetRequiredService<IOptions<ZtmOptions>>().Value;
+    client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+});
 
 // The browser only lets the frontend call this API if its origin is on this list.
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];

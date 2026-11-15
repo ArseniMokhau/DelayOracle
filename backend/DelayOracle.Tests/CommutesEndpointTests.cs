@@ -62,6 +62,17 @@ public class CommutesEndpointTests : IDisposable
     }
 
     [Fact]
+    public async Task GetById_CreatedAtIsMarkedAsUtc()
+    {
+        var created = await CreateCommuteAsync();
+
+        var json = await _client.GetStringAsync($"/api/commutes/{created.Id}");
+
+        // Without the Z a browser would read the time as local time.
+        Assert.Matches("\"createdAt\":\"[^\"]+Z\"", json);
+    }
+
+    [Fact]
     public async Task GetById_UnknownId_Returns404()
     {
         var response = await _client.GetAsync("/api/commutes/999");
