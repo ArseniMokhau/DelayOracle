@@ -133,16 +133,18 @@ Weekday and weather (rain, temperature from Open-Meteo) were planned as features
 Two tabs.
 
 - **Departures:** stop search; live departures with scheduled time, predicted time, a delay badge (text, not colour alone) and the prediction source; a card with the model and baseline MAE.
-- **My commutes:** a list of commutes, each with its live answer from `/advice` (refreshed every 30 seconds); a form to create and edit with the validation rules above; delete with confirmation.
+- **My commutes:** a list of commutes, each with its stop name and its live answer from `/advice` (refreshed every 30 seconds); a form to create and edit with the validation rules above, which offers the lines currently leaving the chosen stop; delete with confirmation.
 
-Every view has loading, empty and error states. All requests go through `src/api/`; the API address comes from `VITE_API_URL`.
+The browser keeps the ids of its commutes in `localStorage` and asks the API for exactly those. A share link carries the ids in the URL hash (`#commutes=<id>,<id>`); opening it adds them to that browser's list. Ids the API no longer knows are dropped from the list.
+
+Every view has loading, empty and error states. All requests go through `src/api/`; the API address comes from `VITE_API_URL`. Pure logic (formatting, form validation, the id list, share links) lives in `src/lib/` and is unit tested; colours are design tokens in `src/styles/tokens.css` with a light and a dark set.
 
 ## Testing
 
 - Backend unit: `AdviceCalculator`; the worker-unavailable fallback.
 - Backend integration: commutes endpoints through HTTP with in-memory SQLite.
 - Worker: feature building; `/predict` response shape.
-- Frontend: form validation (Vitest).
+- Frontend (Vitest, Testing Library): form validation, formatting, the id list and share links as unit tests; every component and page against a fake `fetch`, including the loading, empty and error states.
 
 ## Deployment
 

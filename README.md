@@ -2,7 +2,7 @@
 
 DelayOracle tells you when to leave home to catch public transport in Gdańsk. It combines live ZTM Gdańsk departures, a delay prediction from a trained model, and your walking time to the stop.
 
-**Status:** the API stores commutes, searches ZTM stops, returns live departures with a delay predicted by the trained model, and answers when to leave for a commute. The real UI comes in a later milestone (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
+**Status:** the API stores commutes, searches ZTM stops, returns live departures with a delay predicted by the trained model, and answers when to leave for a commute. The web app shows all of it in two tabs. It runs locally; deployment comes in the next milestone (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
 
 ## Parts
 
@@ -70,6 +70,15 @@ npm run dev
 ```
 
 To point the frontend at a different API, copy `frontend/.env.example` to `frontend/.env.local` and change `VITE_API_URL`.
+
+The app needs the backend running. It has two tabs:
+
+- **Departures:** search for a stop and see its live departures, each with the scheduled time, the predicted time, the delay in words and where the prediction came from. A card shows the model's measured error next to the baseline.
+- **My commutes:** save a trip (stop, optional line, walking time) and see when to leave for it, refreshed every 30 seconds. Commutes can be edited and deleted.
+
+The list of commutes is personal to the browser: it remembers the ids of the commutes created in it. "Copy link" produces a link that adds the same commutes on another device. The two devices then share those commutes, so an edit or a delete on one shows on the other.
+
+The look was chosen from HTML mocks kept in [docs/design/](docs/design/README.md).
 
 **Everything with Docker**
 
