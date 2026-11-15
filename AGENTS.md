@@ -47,7 +47,7 @@ The development machine is Windows with PowerShell. In PowerShell `curl` is an a
 
 - Plural nouns under `/api`, no verbs in paths.
 - Status codes: 200, 201 with `Location`, 204, 400, 404, 503. Errors are ProblemDetails.
-- CORS allow-list from configuration (`Cors:AllowedOrigins`): `http://localhost:5173` in development, the GitHub Pages origin in production. Pages is HTTPS, so the deployed API must be HTTPS too.
+- CORS allow-list from configuration (`Cors:AllowedOrigins`): `http://localhost:5173` in development. Deployment is postponed; when the frontend is hosted, its origin is added here, and an HTTPS frontend needs an HTTPS API.
 - Swagger UI is enabled in development.
 
 ## Worker rules (Python)

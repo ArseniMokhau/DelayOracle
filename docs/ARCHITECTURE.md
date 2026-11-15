@@ -30,7 +30,7 @@ flowchart LR
 | Backend | C#, ASP.NET Core (current .NET LTS), EF Core, SQLite, xUnit |
 | Worker | Python 3.14, FastAPI, PyTorch, pytest |
 | Frontend | React, TypeScript, Vite, TanStack Query |
-| Tooling | Docker Compose, GitHub Actions, GitHub Pages |
+| Tooling | Docker Compose, GitHub Actions |
 | Data | ZTM Gdańsk open data (CC BY) |
 
 ## Repository layout
@@ -149,9 +149,8 @@ Every view has loading, empty and error states. All requests go through `src/api
 ## Deployment
 
 - CI (`ci.yml`): backend build and test, worker lint and test, frontend lint, test and build.
-- Frontend: built and published to GitHub Pages (`deploy-pages.yml`).
-- API and worker: Docker images, hosted on a free container host chosen at deployment time.
-- Local: `docker compose up --build`.
+- Local: `docker compose up --build` starts all three parts.
+- Hosting is postponed: the project has no hosting resources for now, and the worker's Docker image alone is about 1.6 GB. The plan, when it is taken up again, is the frontend on GitHub Pages and the API and worker as Docker images on a container host. Nothing in the code has to change for that: the API address (`VITE_API_URL`) and the allowed CORS origins (`Cors:AllowedOrigins`) are configuration, and every part has a Dockerfile.
 
 ## Milestones
 
@@ -161,8 +160,9 @@ Every view has loading, empty and error states. All requests go through `src/api
 4. **Live departures:** ZTM client, stop search, departures with fallback, `/advice`. Done when a real stop returns departures.
 5. **Prediction worker:** features, training, baseline comparison, serving, API integration. Done when `train.py` prints model and baseline MAE and the API returns `source: "model"`.
 6. **Frontend:** both tabs against the local API. Done when all states work and the app is usable at 360 px.
-7. **Deployment and documentation:** Pages, API host, README, demo recording, AI usage log.
-8. **Optional, asynchronous retraining:** `POST /api/model/retrain` returns 202; a `Channel<T>` with a `BackgroundService` calls the worker.
+7. **Documentation:** the README in Polish and English with the AI usage summary, and the AI usage log. Done.
+8. **Postponed, deployment:** Pages, API host, demo recording. Waits for hosting resources.
+9. **Optional, asynchronous retraining:** `POST /api/model/retrain` returns 202; a `Channel<T>` with a `BackgroundService` calls the worker.
 
 ## Attribution
 
