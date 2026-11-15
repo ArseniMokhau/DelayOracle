@@ -21,6 +21,9 @@ public class ApiFactory : WebApplicationFactory<Program>
     // What "ZTM" answers. Replace it before the first request to simulate a failure.
     public FakeHttpHandler ZtmHandler { get; set; } = new(AnswerFromFixtures);
 
+    // What the API believes the current time is. The fixtures are from 14 November 2026, 17:21 UTC.
+    public DateTime Now { get; set; } = new(2026, 11, 14, 17, 15, 0, DateTimeKind.Utc);
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         _connection.Open();
@@ -32,6 +35,9 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.AddDbContext<AppDbContext>(options => options.UseSqlite(_connection));
 
             services.AddHttpClient<ZtmClient>().ConfigurePrimaryHttpMessageHandler(() => ZtmHandler);
+
+            services.RemoveAll<TimeProvider>();
+            services.AddSingleton<TimeProvider>(new FixedTimeProvider(() => Now));
         });
     }
 
@@ -49,5 +55,14 @@ public class ApiFactory : WebApplicationFactory<Program>
         {
             Content = new StringContent(FakeHttpHandler.Fixture(fixture)),
         };
+    }
+
+    // A clock that always shows the time the test chose.
+    private sealed class FixedTimeProvider(Func<DateTime> now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow()
+        {
+            return now();
+        }
     }
 }

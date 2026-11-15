@@ -13,12 +13,15 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ZtmUnavailableExceptionHandler>();
 builder.Services.AddMemoryCache();
 builder.Services.AddOpenApi();
+// The clock is a service, so tests can replace it with a fixed time.
+builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddScoped<CommuteService>();
 builder.Services.AddScoped<StopService>();
 builder.Services.AddScoped<DepartureService>();
+builder.Services.AddScoped<AdviceService>();
 
 builder.Services.Configure<ZtmOptions>(builder.Configuration.GetSection("Ztm"));
 builder.Services.AddHttpClient<ZtmClient>((services, client) =>
