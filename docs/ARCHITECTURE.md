@@ -11,16 +11,15 @@ flowchart LR
   Browser["React app"] -->|REST| API["ASP.NET Core API"]
   API --> DB[("SQLite<br/>commutes")]
   API -->|live departures| ZTM["ZTM Gdańsk"]
-  API -->|weather| Meteo["Open-Meteo"]
-  API -->|POST /predict| Worker["Python worker<br/>FastAPI + scikit-learn"]
-  Worker --> Model[("model.joblib")]
+  API -->|POST /predict| Worker["Python worker<br/>FastAPI + PyTorch"]
+  Worker --> Model[("model.pt")]
   Collector["collector.py"] --> Delays[("delays.db")] --> Train["train.py"] --> Model
 ```
 
 | Component | Responsibility |
 |---|---|
 | Frontend | User interface; talks only to the API |
-| API | REST endpoints, validation, persistence; calls ZTM, Open-Meteo and the worker |
+| API | REST endpoints, validation, persistence; calls ZTM and the worker |
 | Worker | Serves delay predictions from the trained model |
 | `collector.py`, `train.py` | Offline: collect delay data, train and evaluate the model |
 
@@ -29,10 +28,10 @@ flowchart LR
 | Part | Technology |
 |---|---|
 | Backend | C#, ASP.NET Core (current .NET LTS), EF Core, SQLite, xUnit |
-| Worker | Python 3.14, FastAPI, pandas, scikit-learn, pytest |
+| Worker | Python 3.14, FastAPI, PyTorch, pytest |
 | Frontend | React, TypeScript, Vite, TanStack Query |
 | Tooling | Docker Compose, GitHub Actions, GitHub Pages |
-| Data | ZTM Gdańsk open data (CC BY), Open-Meteo |
+| Data | ZTM Gdańsk open data (CC BY) |
 
 ## Repository layout
 
@@ -46,7 +45,7 @@ delayoracle/
 │   ├── DelayOracle.slnx
 │   ├── DelayOracle.Api/  Controllers/, Services/, Models/, Data/, Program.cs
 │   └── DelayOracle.Tests/
-├── ai-worker/            collector.py, features.py, train.py, app.py, tests/, models/, data/sample/
+├── ai-worker/            collector.py, features.py, model.py, train.py, app.py, tests/, models/, data/sample/
 └── frontend/src/         api/, components/, pages/, App.tsx
 ```
 
@@ -69,7 +68,7 @@ Base path `/api`. JSON is camelCase. Errors are ProblemDetails.
 
 A departure contains `route`, `headsign`, `scheduledTime`, `estimatedTime`, `currentDelaySeconds`, `predictedDelaySeconds`, `predictedTime` and `source`. The source is `model`, `fallback` (worker unavailable, ZTM's own delay used) or `schedule` (no live data).
 
-Departures request flow: the API fetches departures from ZTM, fetches current weather (cached about 10 minutes), sends both to the worker in one batch, and merges the predicted delays into the response.
+Departures request flow: the API fetches departures from ZTM, sends the ones with live data to the worker in one batch, and merges the predicted delays into the response.
 
 Failure behaviour: worker unavailable gives a normal response with `source: "fallback"`; ZTM unavailable gives 503; invalid input gives 400 with field errors; unexpected errors give a 500 ProblemDetails without a stack trace.
 
@@ -105,24 +104,28 @@ Examples (now 07:00, walk 5 minutes, so `leaveBy` is `predictedTime` minus 6 min
 
 - **Data:** real ZTM departures collected by `collector.py`, one row per departure.
 - **Label:** `last_delay_s`, the delay at the last sighting before departure.
-- **Features:** `current_delay_s`, `minutes_to_departure`, `hour`, `weekday`, `precip_mm`, `temp_c`. Hour and weekday are Europe/Warsaw local time in training and serving.
-- **Model:** `GradientBoostingRegressor`.
+- **Features:** `current_delay_s`, `minutes_to_departure`, `hour`. The hour is Europe/Warsaw local time in training and serving. `features.py` builds them for both.
+- **Model:** a small PyTorch network (two hidden layers) that predicts the change of the delay; the prediction is the current delay plus that change.
 - **Baseline:** final delay equals current delay.
 - **Split:** first 80% of the time range trains, last 20% tests.
 - **Output:** model and baseline MAE on the test block, in `models/model_card.json`.
 
-Worker endpoints: `POST /predict`, `GET /model`, `GET /health`. The worker makes no outside calls; the API supplies the weather.
+Worker endpoints: `POST /predict`, `GET /model`, `GET /health`. The worker makes no outside calls. The API sends the raw departure times and the worker builds the features, so that logic exists in one place.
 
 ```json
-{ "items": [ { "current_delay_s": 240, "minutes_to_departure": 12.5,
-               "hour": 8, "weekday": 4, "precip_mm": 0.4, "temp_c": 3.1 } ] }
+{ "observed_at": "2026-11-14T17:00:00Z",
+  "departures": [ { "scheduled_time": "2026-11-14T17:25:00Z", "current_delay_s": 240 } ] }
 ```
 
 ```json
-{ "model_version": "2026-11-15T10:12:00Z", "predictions": [ { "delay_s": 275 } ] }
+{ "predicted_delays_s": [ 275 ] }
 ```
 
-Limitations: the training window is short (one to two days), so weekly patterns are not learned and weather varies little. The model may not beat the baseline; the model card and README report the measured result either way.
+Predictions are in the order of the departures in the request.
+
+Limitations: the training window is two days, so weekly patterns are not learned. The model card and README report the measured result against the baseline.
+
+Weekday and weather (rain, temperature from Open-Meteo) were planned as features and were left out of the current implementation for lack of time: two days of data cannot teach them, and a model trained with them gave wrong predictions on other weekdays and temperatures. For the same reason the API has no weather client yet. Both are to be introduced after a longer collection.
 
 ## Frontend
 
@@ -161,4 +164,3 @@ Every view has loading, empty and error states. All requests go through `src/api
 ## Attribution
 
 - Real-time data: ZTM Gdańsk open data portal (CC BY).
-- Weather: Open-Meteo (see its terms for the required attribution).

@@ -38,7 +38,7 @@ The development machine is Windows with PowerShell. In PowerShell `curl` is an a
 - Folders are the layers: `Controllers` (HTTP only), `Services` (logic and outside calls), `Models` (entity and DTO records), `Data` (EF Core). Controllers call services, hold no business logic and never return entities.
 - Business rules are plain methods without I/O (for example `AdviceCalculator`), so they can be unit tested directly.
 - Validate DTOs with DataAnnotations. `[ApiController]` then returns 400 ProblemDetails.
-- Outside calls (ZTM, worker, Open-Meteo) use a typed `HttpClient` from `AddHttpClient`, with a timeout. ZTM failing gives a 503 ProblemDetails. The worker failing makes the API fall back to ZTM's own delay and mark `source: "fallback"`. Never return a stack trace.
+- Outside calls (ZTM, worker) use a typed `HttpClient` from `AddHttpClient`, with a timeout. ZTM failing gives a 503 ProblemDetails. The worker failing makes the API fall back to ZTM's own delay and mark `source: "fallback"`. Never return a stack trace.
 - Use `async`/`await` and pass `CancellationToken`. Keep URLs, CORS origins and timeouts in configuration.
 - Times are UTC in the backend. ZTM timestamps are UTC (`Z` suffix).
 - Prefer clear, readable code over clever code.
@@ -53,8 +53,8 @@ The development machine is Windows with PowerShell. In PowerShell `curl` is an a
 ## Worker rules (Python)
 
 - Python 3.14, type hints, `pytest`, `ruff`. One job per file.
-- `train.py` uses a fixed random seed and writes `models/model.joblib` and `models/model_card.json` (data window, row counts, model and baseline metrics, library versions).
-- While serving, the worker makes no outside calls; the API sends the weather.
+- `train.py` uses a fixed random seed and writes `models/model.pt` and `models/model_card.json` (data window, row counts, model and baseline metrics, library versions).
+- While serving, the worker makes no outside calls.
 
 ## ML rules
 
