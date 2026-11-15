@@ -1,0 +1,85 @@
+/* The violet tile at the top of the Departures tab: a question, the search field and the matching stops. */
+.search-tile {
+  padding: clamp(1.5rem, 4cqi, 3.25rem);
+  background: var(--brand);
+  color: var(--on-brand);
+  border-radius: calc(var(--radius-tile) + 0.25rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.search-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.375rem, 6cqi, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 38.75rem;
+}
+
+.search-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--on-brand-soft);
+}
+
+/* The field stays white with dark text in both colour schemes: it sits on the violet tile. */
+.search-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 3.75rem;
+  padding: 0 1.5rem;
+  background: #ffffff;
+  color: var(--on-tile);
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.search-tile :focus-visible {
+  outline-color: var(--mint);
+}
+
+/* Hints, "searching" and error lines under the field. */
+.search-message {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--on-brand-soft);
+}
+
+.stop-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+}
+
+.stop-pill {
+  min-height: 2.75rem;
+  padding: 0 1.125rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--brand-raised);
+  color: var(--on-brand);
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+/* The stop whose departures are showing. */
+.stop-pill[aria-pressed='true'] {
+  background: var(--mint);
+  color: var(--on-tile);
+}
