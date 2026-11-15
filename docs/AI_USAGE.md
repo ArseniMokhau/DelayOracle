@@ -77,6 +77,24 @@ The developer wrote the implementation. Claude assisted with testing and with im
 - One of Claude's stop search tests expected the wrong order for two stops with the same name; it was fixed before it was used.
 - Claude's Milestone 2 tests compared `createdAt` values in a way that ignores whether the time is marked as UTC, so they missed that the `Z` was lost when a commute was read back from SQLite. A test on the raw JSON was added and the bug fixed.
 
+## Milestone 5: prediction worker (November 2026)
+
+The developer wrote the worker endpoints and the API integration. Claude assisted with testing and with implementation suggestions, and for the training script provided the code in explained parts as a PyTorch refresher, which the developer typed and ran.
+
+**What Claude did**
+
+- Testing: wrote the tests for the feature builder, the collector, the worker endpoints, the API's worker client, the predicted departures and the model endpoint, with a fake worker for the API tests.
+- Training: provided the PyTorch training code part by part (loading, network, training loop, evaluation, saving) with explanations; wrote the feature builder shared by training and serving.
+- Collector: made it pass the linter and changed it to store every sighting of a departure.
+- Analysis: probed the trained model with inputs outside the collected days and compared feature sets on the test rows.
+- Setup: CPU-only PyTorch, worker settings and the 503 handler in the API, Compose configuration; ran the API with the real worker locally and in Docker.
+
+**What had to be corrected**
+
+- Claude's first plan trained on six features including weekday and weather. Probing showed that model gave wrong predictions for other weekdays and temperatures (for example over 20 minutes of delay at 20 °C), which the test score had not revealed. The model was reduced to three features, and the weather download script Claude had written was removed.
+- Claude first said an extra filter for impossible delays was needed; the existing "usable label" rule already excluded them.
+- The architecture document described a `/predict` contract where the API computed the features; Claude changed it so the worker builds them in one place.
+
 ## Template for later milestones
 
 ```

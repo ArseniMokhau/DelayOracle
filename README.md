@@ -2,14 +2,14 @@
 
 DelayOracle tells you when to leave home to catch public transport in Gdańsk. It combines live ZTM Gdańsk departures, a delay prediction from a trained model, and your walking time to the stop.
 
-**Status:** the API stores commutes, searches ZTM stops, returns live departures for a stop and answers when to leave for a commute. The predicted delay is currently ZTM's own live delay (`source: "fallback"`); the trained model and the real UI come in later milestones (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
+**Status:** the API stores commutes, searches ZTM stops, returns live departures with a delay predicted by the trained model, and answers when to leave for a commute. The real UI comes in a later milestone (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
 
 ## Parts
 
 | Folder | What it is |
 |---|---|
 | `backend/` | ASP.NET Core API (.NET 10) with xUnit tests |
-| `ai-worker/` | Python 3.14 FastAPI worker that will serve delay predictions |
+| `ai-worker/` | Python 3.14 FastAPI worker that serves delay predictions from a PyTorch model, plus the data collector and the training script |
 | `frontend/` | React + TypeScript app built with Vite |
 
 ## Run locally
@@ -36,6 +36,12 @@ Invoke-RestMethod http://localhost:5000/api/commutes/1/advice
 ```
 
 `routeShortName` is optional in a commute; when set, the advice only considers that line.
+
+Each departure has a `source`: `model` when the worker predicted the delay, `fallback` when the worker is not running (ZTM's own delay is used), and `schedule` when ZTM has no live data for it. Start the worker (below) to get `model`. The model's measured error is at:
+
+```powershell
+Invoke-RestMethod http://localhost:5000/api/model
+```
 
 After changing an entity, generate a migration (run `dotnet tool restore` once first):
 
