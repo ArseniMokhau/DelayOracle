@@ -106,6 +106,8 @@ The model predicts how much a vehicle's delay will change between now and its de
 
 To reproduce: `cd ai-worker`, then `python train.py` (about 10 seconds, no network needed).
 
+A full walkthrough of the data, the model, the training, the worker and the API integration, with a glossary, is in [docs/PREDICTION_MODEL.pdf](docs/PREDICTION_MODEL.pdf).
+
 ### Limitations
 
 - **Two days of data.** The model has seen one Friday and part of one Saturday. It knows nothing about other weekdays, rush hours on a normal working week, holidays or other seasons, and it was tested on a single Saturday morning. The result above describes those hours, not the system in general.
