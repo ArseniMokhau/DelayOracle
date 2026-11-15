@@ -30,6 +30,13 @@ builder.Services.AddHttpClient<ZtmClient>((services, client) =>
     client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
 });
 
+builder.Services.Configure<WorkerOptions>(builder.Configuration.GetSection("Worker"));
+builder.Services.AddHttpClient<WorkerClient>((services, client) =>
+{
+    var options = services.GetRequiredService<IOptions<WorkerOptions>>().Value;
+    client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+});
+
 // The browser only lets the frontend call this API if its origin is on this list.
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
