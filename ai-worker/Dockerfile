@@ -1,5 +1,6 @@
 FROM python:3.14-slim
 WORKDIR /app
+# Dependencies first: this layer is rebuilt only when requirements.txt changes.
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .

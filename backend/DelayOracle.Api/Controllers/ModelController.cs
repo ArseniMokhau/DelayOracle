@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DelayOracle.Api.Controllers;
 
+// Passes on the model card of the prediction worker, so the frontend can show how accurate
+// the model is. If the worker is down, WorkerUnavailableExceptionHandler answers 503.
 [ApiController]
 [Route("api/model")]
 public class ModelController : ControllerBase

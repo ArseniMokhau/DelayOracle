@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DelayOracle.Api.Services;
 
+// Create, read, update and delete for commutes. Works with the entity internally
+// and hands out CommuteResponse records.
 public class CommuteService
 {
     private readonly AppDbContext _db;
@@ -37,6 +39,7 @@ public class CommuteService
         return commutes.Select(ToResponse).ToList();
     }
 
+    // Returns null when there is no commute with this id.
     public async Task<CommuteResponse?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
         var commute = await _db.Commutes.FindAsync([id], cancellationToken);
@@ -44,6 +47,7 @@ public class CommuteService
         return commute == null ? null : ToResponse(commute);
     }
 
+    // Replaces every editable field. Returns null when there is no commute with this id.
     public async Task<CommuteResponse?> UpdateAsync(int id, CommuteRequest commuteRequest, CancellationToken cancellationToken)
     {
         var commute = await _db.Commutes.FindAsync([id], cancellationToken);
@@ -64,6 +68,7 @@ public class CommuteService
         }
     }
 
+    // Deletes with a single SQL statement. Returns false when nothing was deleted.
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
     {
         var deletedRows = await _db.Commutes.Where(i => i.Id == id).ExecuteDeleteAsync(cancellationToken);

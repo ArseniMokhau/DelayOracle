@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DelayOracle.Api.Controllers;
 
+// HTTP endpoints for ZTM stops: search by name, and live departures for one stop.
 [ApiController]
 [Route("api/stops")]
 public class StopsController : ControllerBase
@@ -18,12 +19,14 @@ public class StopsController : ControllerBase
         _departureService = departureService;
     }
 
+    // The attributes on `query` make [ApiController] answer 400 when it is missing or too short.
     [HttpGet]
     public async Task<ActionResult<List<StopResponse>>> Search([FromQuery, Required, MinLength(2)] string query, CancellationToken cancellationToken)
     {
         return Ok(await _stopService.SearchAsync(query, cancellationToken));
     }
 
+    // ZTM does not say whether a stop exists, so an unknown id gives an empty list, not a 404.
     [HttpGet("{stopId:int}/departures")]
     public async Task<ActionResult<List<DepartureResponse>>> GetDepartures(int stopId, CancellationToken cancellationToken)
     {

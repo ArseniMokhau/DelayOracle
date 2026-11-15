@@ -2,6 +2,7 @@ using DelayOracle.Api.Services;
 
 namespace DelayOracle.Tests;
 
+// Stop names are compared after normalising, so a search works without Polish letters.
 public class SearchTextTests
 {
     [Theory]

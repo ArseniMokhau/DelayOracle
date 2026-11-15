@@ -77,6 +77,7 @@ def get_json(url: str):
 
 
 def find_list(obj, key: str):
+    """Finds the first list stored under `key` anywhere in a nested JSON object."""
     if isinstance(obj, dict):
         if isinstance(obj.get(key), list):
             return obj[key]
@@ -92,6 +93,7 @@ def fetch_departures(stop_id: int):
 
 
 def connect(path: str) -> sqlite3.Connection:
+    """Opens the database and creates the tables if they are missing."""
     con = sqlite3.connect(path)
     con.execute("PRAGMA journal_mode=WAL")
     con.executescript(SCHEMA)
@@ -125,6 +127,7 @@ def select_stops(con, count: int, pause: float):
 
 
 def poll_once(con, stop_ids, pause: float):
+    """Fetches the departures of every stop once and stores the live ones."""
     ok = failed = seen = 0
     for stop_id in stop_ids:
         try:
@@ -156,6 +159,7 @@ def poll_once(con, stop_ids, pause: float):
 
 
 def report(con):
+    """Prints how much usable training data the database holds."""
     one = lambda sql: con.execute(sql).fetchone()[0]  # noqa: E731
     total = one("SELECT COUNT(*) FROM departures")
     # "Good label": last sighting was within 5 min of the estimated departure,

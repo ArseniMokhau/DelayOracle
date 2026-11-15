@@ -6,6 +6,8 @@ using Microsoft.Extensions.Options;
 
 namespace DelayOracle.Tests;
 
+// The worker client against a fake HTTP handler: what it sends, what it returns,
+// and that every kind of failure becomes a WorkerUnavailableException.
 public class WorkerClientTests
 {
     private const string TwoPredictions = """{"predicted_delays_s":[230,-10]}""";

@@ -19,11 +19,13 @@ builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
+// One instance of each service per HTTP request.
 builder.Services.AddScoped<CommuteService>();
 builder.Services.AddScoped<StopService>();
 builder.Services.AddScoped<DepartureService>();
 builder.Services.AddScoped<AdviceService>();
 
+// Typed HttpClients: settings come from appsettings.json, and each client gets its own timeout.
 builder.Services.Configure<ZtmOptions>(builder.Configuration.GetSection("Ztm"));
 builder.Services.AddHttpClient<ZtmClient>((services, client) =>
 {

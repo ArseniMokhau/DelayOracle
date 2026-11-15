@@ -44,6 +44,7 @@ ORDER BY first_seen_at
 
 
 def parse_utc(text: str) -> datetime:
+    """Reads a timestamp such as '2026-11-13T08:30:21Z'."""
     return datetime.fromisoformat(text).astimezone(UTC)
 
 
@@ -73,6 +74,7 @@ def load_dataset(db_path: str):
 
 
 def train_model(model, features, delay_changes) -> None:
+    """Adjusts the model's weights so its output gets close to `delay_changes`."""
     loader = DataLoader(TensorDataset(features, delay_changes), batch_size=BATCH_SIZE, shuffle=True)
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     loss_function = nn.L1Loss()
@@ -81,6 +83,8 @@ def train_model(model, features, delay_changes) -> None:
         model.train()
         total_loss = 0.0
         for batch_features, batch_changes in loader:
+            # Clear the old gradients, measure the error, work out how each weight
+            # should change, then change the weights a little.
             optimizer.zero_grad()
             loss = loss_function(model(batch_features), batch_changes)
             loss.backward()
@@ -91,6 +95,7 @@ def train_model(model, features, delay_changes) -> None:
 
 
 def mean_absolute_error(predicted: torch.Tensor, actual: torch.Tensor) -> float:
+    """The average size of the error, in the unit of the inputs (seconds)."""
     return (predicted - actual).abs().mean().item()
 
 
@@ -100,6 +105,7 @@ def write_model_card(path: str, card: dict) -> None:
 
 
 def main() -> None:
+    # Fixes the starting weights and the shuffle order, so a run can be repeated.
     torch.manual_seed(SEED)
 
     features, current_delays, final_delays, seen_at = load_dataset(DB_PATH)
@@ -113,6 +119,7 @@ def main() -> None:
     std = features[train].std(dim=0).clamp_min(1e-6)
     scaled = (features - mean) / std
 
+    # The model learns the change of the delay; the baseline is "no change".
     model = DelayModel(len(FEATURE_NAMES), HIDDEN_SIZE)
     train_model(model, scaled[train], final_delays[train] - current_delays[train])
 

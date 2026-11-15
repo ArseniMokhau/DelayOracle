@@ -11,9 +11,12 @@ MODEL_PATH = "models/model.pt"
 MODEL_CARD_PATH = "models/model_card.json"
 
 app = FastAPI(title="DelayOracle worker")
+# Loaded once when the worker starts; every request reuses it.
 model, mean, std = load_model(MODEL_PATH)
 
 
+# The request and response bodies. FastAPI validates incoming JSON against these classes
+# and answers 422 when a field is missing or a time has no time zone.
 class DepartureInput(BaseModel):
     scheduled_time: AwareDatetime
     current_delay_s: int
@@ -36,12 +39,14 @@ def health() -> dict[str, str]:
 
 @app.get("/model")
 def model_card() -> dict:
+    """How the model was trained and how it scored; written by train.py."""
     with open(MODEL_CARD_PATH, encoding="utf-8") as file:
         return json.load(file)
 
 
 @app.post("/predict")
 def predict(request: PredictRequest) -> PredictResponse:
+    """Predicted final delay in seconds for each departure, in the order of the request."""
     # 1. one row of features per departure
     feature_rows = [
         build_features(departure.current_delay_s, departure.scheduled_time, request.observed_at)

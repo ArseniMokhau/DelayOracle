@@ -17,6 +17,7 @@ def realtime_row(delay_s: int, estimated: str) -> dict:
 
 
 def poll(con, monkeypatch, seen_at: str, rows: list[dict]) -> None:
+    """Runs one poll in which ZTM answers `rows` and the clock shows `seen_at`."""
     monkeypatch.setattr(collector, "fetch_departures", lambda stop_id: rows)
     monkeypatch.setattr(collector, "utc_now", lambda: seen_at)
     collector.poll_once(con, [STOP_ID], pause=0)

@@ -4,6 +4,7 @@ using DelayOracle.Api.Models;
 
 namespace DelayOracle.Tests;
 
+// GET /api/model through HTTP, with a fake worker behind the API.
 public class ModelEndpointTests : IDisposable
 {
     private readonly ApiFactory _factory = new();

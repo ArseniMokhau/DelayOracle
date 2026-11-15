@@ -2,6 +2,7 @@ using DelayOracle.Api.Models;
 
 namespace DelayOracle.Api.Services;
 
+// Builds the departures of a stop: live data from ZTM, with the delay predicted by the worker.
 public class DepartureService
 {
     private readonly ZtmClient _ztm;
@@ -24,6 +25,8 @@ public class DepartureService
         return departures.OrderBy(departure => departure.PredictedTime).ToList();
     }
 
+    // Converts a ZTM departure. A live one starts as "fallback" (ZTM's own delay is the
+    // prediction); AddPredictionsAsync upgrades it to "model" when the worker answers.
     private static DepartureResponse ToResponse(ZtmDeparture departure)
     {
         if (departure.Status == "REALTIME" && departure.DelayInSeconds != null)
@@ -42,8 +45,11 @@ public class DepartureService
             Source: PredictionSource.Schedule);
     }
 
+    // Replaces the prediction of every live departure with the worker's. If the worker
+    // is unavailable the departures are returned unchanged, so the user still gets an answer.
     private async Task<List<DepartureResponse>> AddPredictionsAsync(List<DepartureResponse> departures, CancellationToken cancellationToken)
     {
+        // Only departures with live data have a current delay to predict from.
         var live = departures.Where(departure => departure.CurrentDelaySeconds != null).ToList();
 
         var workerDepartures = live.Select(departure => 
@@ -60,6 +66,7 @@ public class DepartureService
             return departures;
         }
 
+        // The worker answers in the order it was asked, so live[i] belongs to predictions[i].
         var result = departures.Where(departure => departure.CurrentDelaySeconds == null).ToList();
         for (var i = 0; i < live.Count; i++)
         {

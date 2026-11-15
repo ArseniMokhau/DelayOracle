@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { afterEach, expect, test, vi } from 'vitest'
 import App from './App'
 
+// The tests replace the global fetch, so no request leaves the test process.
 afterEach(() => {
   vi.unstubAllGlobals()
 })
