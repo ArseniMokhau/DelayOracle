@@ -13,6 +13,7 @@ import {
   linesAt,
 } from '../lib/commuteForm'
 import { stopLabel } from '../lib/format'
+import { useStop } from '../lib/useStop'
 import StopSearch from './StopSearch'
 
 interface CommuteFormProps {
@@ -30,6 +31,10 @@ function CommuteForm({ commute, onSaved, onCancel }: CommuteFormProps) {
   const [errors, setErrors] = useState<CommuteFormErrors>({})
   // The stop picked in this form; null while an edited commute still has its old stop.
   const [pickedStop, setPickedStop] = useState<Stop | null>(null)
+
+    // An edited commute only knows the number of its stop; this finds the name for it.
+  const savedStop = useStop(pickedStop ? null : values.stopId)
+  const shownStop = pickedStop ?? savedStop.data
 
   // The upcoming departures of the chosen stop tell which lines can be offered.
   const stopDepartures = useQuery({
@@ -94,8 +99,8 @@ function CommuteForm({ commute, onSaved, onCancel }: CommuteFormProps) {
 
         <div className="field">
           <StopSearch compact selectedStop={pickedStop} onSelect={pickStop} />
-          {pickedStop && <p className="field-hint">{`Selected: ${stopLabel(pickedStop)}`}</p>}
-          {!pickedStop && values.stopId !== null && (
+            {shownStop && <p className="field-hint">{`Selected: ${stopLabel(shownStop)}`}</p>}
+            {savedStop.isError && (
             <p className="field-hint">{`Keeps stop number ${values.stopId} unless you pick another`}</p>
           )}
           {errors.stopId && <p className="field-error">{errors.stopId}</p>}

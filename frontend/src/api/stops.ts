@@ -5,3 +5,8 @@ import type { Stop } from './types'
 export function searchStops(query: string): Promise<Stop[]> {
   return apiGet<Stop[]>(`/api/stops?query=${encodeURIComponent(query)}`)
 }
+
+// One stop by its id. The API answers 404 when ZTM has no such stop.
+export function fetchStop(stopId: number): Promise<Stop> {
+  return apiGet<Stop>(`/api/stops/${stopId}`)
+}

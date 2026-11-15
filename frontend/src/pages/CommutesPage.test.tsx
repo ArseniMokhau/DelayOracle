@@ -178,7 +178,11 @@ test('shows an error with a retry button when the commutes cannot be loaded', as
 
   // The API is back before the user retries.
   fetchMock.mockImplementation(async (url: string) =>
-    url.includes('/advice') ? jsonResponse(NO_DEPARTURE) : jsonResponse([WORK_COMMUTE]),
+    url.includes('/advice')
+      ? jsonResponse(NO_DEPARTURE)
+      : url.includes('/api/stops/')
+        ? jsonResponse(STOP)
+        : jsonResponse([WORK_COMMUTE]),
   )
   await userEvent.click(within(alert).getByRole('button', { name: 'Try again' }))
 
@@ -262,6 +266,7 @@ test('the edit button opens the form with the commute, and saving shows the new 
   fetchMock.mockImplementation(async (url: string) => {
     if (url.includes('/advice')) return jsonResponse(NO_DEPARTURE)
     if (url.includes('/departures')) return jsonResponse([])
+    if (url.includes('/api/stops/')) return jsonResponse(STOP)
     return url.includes('?') ? jsonResponse([renamed]) : jsonResponse(renamed)
   })
   await userEvent.clear(name)
@@ -356,4 +361,34 @@ test('the list offers to copy a share link', async () => {
 
   await findTile('Morning to work')
   expect(screen.getByRole('button', { name: 'Copy link' })).toBeTruthy()
+})
+
+test('a tile names the stop of its commute', async () => {
+  saveCommuteIds([WORK_ID])
+  const fetchMock = stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/stops/1028': jsonResponse(STOP),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  expect(await screen.findByText('Morning to work · Brama Wyżynna 01 · Line 6 · 5 min walk')).toBeTruthy()
+  const requested = fetchMock.mock.calls.map((call) => call[0])
+  expect(requested.some((url) => url.endsWith('/api/stops/1028'))).toBe(true)
+})
+
+test('a tile whose stop name cannot be loaded shows the rest of its line', async () => {
+  saveCommuteIds([WORK_ID])
+  stubApi({
+    '/advice': jsonResponse(NO_DEPARTURE),
+    '/api/stops/1028': jsonResponse(null, 404),
+    '/api/commutes?': jsonResponse([WORK_COMMUTE]),
+  })
+
+  renderWithQuery(<CommutesPage />)
+
+  const tile = await findTile('Morning to work')
+  expect(await tile.findByText('No departure')).toBeTruthy()
+  expect(tile.getByText('Morning to work · Line 6 · 5 min walk')).toBeTruthy()
 })

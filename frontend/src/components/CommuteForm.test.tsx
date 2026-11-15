@@ -94,13 +94,18 @@ test('a valid form is posted to the API and the saved commute is reported', asyn
 
 test('editing starts from the commute, keeps its stop and replaces it with PUT', async () => {
   const renamed = { ...WORK_COMMUTE, name: 'Evening to work' }
-  const fetchMock = stubApi({ '/departures': jsonResponse([]), '/api/commutes/': jsonResponse(renamed) })
+  const fetchMock = stubApi({
+    '/departures': jsonResponse([]),
+    '/api/stops/1028': jsonResponse(STOP),
+    '/api/commutes/': jsonResponse(renamed),
+  })
   const onSaved = vi.fn()
   renderWithQuery(<CommuteForm commute={WORK_COMMUTE} onSaved={onSaved} onCancel={() => {}} />)
   expect(screen.getByRole('heading', { name: 'Edit commute' })).toBeTruthy()
   const name = screen.getByLabelText('Name') as HTMLInputElement
   expect(name.value).toBe('Morning to work')
-  expect(screen.getByText('Keeps stop number 1028 unless you pick another')).toBeTruthy()
+  // The stop of the commute is looked up and named.
+  expect(await screen.findByText('Selected: Brama Wyżynna 01')).toBeTruthy()
 
   await userEvent.clear(name)
   await userEvent.type(name, 'Evening to work')
@@ -170,7 +175,8 @@ test('an edited commute gets the suggestions of its stop, with its own line mark
 
   const suggestions = within(await findLineSuggestions())
   expect(suggestions.getByRole('button', { name: '6' }).getAttribute('aria-pressed')).toBe('true')
-  expect(fetchMock.mock.calls[0][0]).toContain('/api/stops/1028/departures')
+  const requested = fetchMock.mock.calls.map((call) => call[0])
+  expect(requested.some((url) => url.endsWith('/api/stops/1028/departures'))).toBe(true)
 })
 
 test('offers no lines when nothing leaves the stop, and the field still takes any text', async () => {
@@ -183,4 +189,20 @@ test('offers no lines when nothing leaves the stop, and the field still takes an
 
   expect(screen.queryByRole('group', { name: 'Lines leaving this stop soon' })).toBeNull()
   expect((screen.getByLabelText('Line (optional)') as HTMLInputElement).value).toBe('N1')
+})
+
+test('an edited commute whose stop cannot be looked up says it keeps the stop number', async () => {
+  stubApi({ '/departures': jsonResponse([]), '/api/stops/1028': jsonResponse(null, 404) })
+
+  renderWithQuery(<CommuteForm commute={WORK_COMMUTE} onSaved={() => {}} onCancel={() => {}} />)
+
+  expect(await screen.findByText('Keeps stop number 1028 unless you pick another')).toBeTruthy()
+})
+
+test('a new form looks up no stop before one is picked', () => {
+  const fetchMock = stubApi({})
+
+  renderWithQuery(<CommuteForm onSaved={() => {}} onCancel={() => {}} />)
+
+  expect(fetchMock).not.toHaveBeenCalled()
 })

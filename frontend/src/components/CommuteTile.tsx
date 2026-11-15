@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchAdvice } from '../api/commutes'
 import type { Advice, Commute } from '../api/types'
-import { adviceHeadline, describeDelay, formatTime, sourceLabel } from '../lib/format'
+import { adviceHeadline, describeDelay, formatTime, sourceLabel, stopLabel } from '../lib/format'
+import { useStop } from '../lib/useStop'
 import CountdownRing from './CountdownRing'
 import { EditIcon, TrashIcon } from './icons'
 
@@ -38,7 +39,14 @@ function CommuteTile({ commute, featured, onEdit, onDelete }: CommuteTileProps) 
     refetchInterval: REFRESH_MS,
   })
 
+    const stop = useStop(commute.stopId)
+
   const line = commute.routeShortName ? `Line ${commute.routeShortName}` : 'Any line'
+  // Name, stop, line and walk. The stop is left out until (or unless) its name is known.
+  const kicker = [commute.name, stop.data && stopLabel(stop.data), line, `${commute.walkMinutes} min walk`]
+    .filter(Boolean)
+    .join(' · ')
+
   const tone = tileTone(advice.data, advice.isError)
   const departure = advice.data?.departure
   const leaveInMinutes = advice.data?.leaveInMinutes
@@ -49,7 +57,7 @@ function CommuteTile({ commute, featured, onEdit, onDelete }: CommuteTileProps) 
 
       <div className="commute-body">
         <div className="commute-top">
-          <p className="commute-kicker">{`${commute.name} · ${line} · ${commute.walkMinutes} min walk`}</p>
+          <p className="commute-kicker">{kicker}</p>
           <div className="commute-actions">
             {/* The buttons show only an icon, so the label is what a screen reader says. */}
             <button type="button" className="icon-button" aria-label={`Edit ${commute.name}`} onClick={onEdit}>
@@ -73,7 +81,7 @@ function CommuteTile({ commute, featured, onEdit, onDelete }: CommuteTileProps) 
         )}
 
         {/* The key makes React draw a new heading when the words change, which replays its fade-in. */}
-        {advice.data && (
+        {advice.data && !advice.isError && (
           <h2 key={adviceHeadline(advice.data)} className="commute-headline">
             {adviceHeadline(advice.data)}
           </h2>
@@ -83,7 +91,7 @@ function CommuteTile({ commute, featured, onEdit, onDelete }: CommuteTileProps) 
           <p className="commute-detail">Nothing you can still catch right now</p>
         )}
 
-        {advice.data?.leaveBy && departure && (
+        {advice.data?.leaveBy && departure && !advice.isError && (
           <>
             <p className="commute-detail">{`Out of the door by ${formatTime(advice.data.leaveBy)}`}</p>
             <ul className="pill-list">
